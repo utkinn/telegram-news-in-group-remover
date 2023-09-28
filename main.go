@@ -70,6 +70,9 @@ func handleCommand(ctx helpers.ResponseContext) {
 }
 
 func handleMessageToChannel(ctx helpers.ResponseContext, update tgbotapi.Update) {
+	if ctx.Message.ForwardFromChat == nil {
+		return
+	}
 	if db.IsChannelIdBanned(ctx.Message.ForwardFromChat.ID) {
 		removeMessage(ctx)
 		mockSender(ctx)
@@ -77,6 +80,9 @@ func handleMessageToChannel(ctx helpers.ResponseContext, update tgbotapi.Update)
 }
 
 func banChannelOfForwardedMessage(ctx helpers.ResponseContext) {
+	if ctx.Message.ForwardFromChat == nil {
+		return
+	}
 	channelRecord := db.Channel{Id: ctx.Message.ForwardFromChat.ID, Title: ctx.Message.ForwardFromChat.Title}
 	db.BanChannel(channelRecord)
 	sendBanResponse(ctx)
