@@ -134,7 +134,7 @@ func sendWithErrorLogging(bot *tgbotapi.BotAPI, c tgbotapi.Chattable) {
 }
 
 func mockSender(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-	text := fmt.Sprintf("%s, атата!", message.From.FirstName)
+	text := fmt.Sprintf("%s, вспышка слева!", message.From.FirstName)
 	response := tgbotapi.NewMessage(message.Chat.ID, text)
 	sendWithErrorLogging(bot, response)
 }
