@@ -45,7 +45,7 @@ func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 
 func handleMessageToBot(ctx helpers.ResponseContext) {
 	if !db.IsAdmin(ctx.Message.From.UserName) {
-		ctx.SendMarkdownFmt("Исчезни, я тебя не знаю.")
+		ctx.SendSilentMarkdownFmt("Исчезни, я тебя не знаю.")
 		return
 	}
 
@@ -83,7 +83,7 @@ func banChannelOfForwardedMessage(ctx helpers.ResponseContext) {
 }
 
 func sendBanResponse(ctx helpers.ResponseContext) {
-	ctx.SendMarkdownFmt("Канал *%s* забанен.", ctx.Message.ForwardFromChat.Title)
+	ctx.SendSilentMarkdownFmt("Канал *%s* забанен.", ctx.Message.ForwardFromChat.Title)
 }
 
 func removeMessage(ctx helpers.ResponseContext) {
@@ -91,5 +91,5 @@ func removeMessage(ctx helpers.ResponseContext) {
 }
 
 func mockSender(ctx helpers.ResponseContext) {
-	ctx.SendMarkdownFmt("%s, вспышка слева!", ctx.Message.From.FirstName)
+	ctx.SendSilentMarkdownFmt("%s, вспышка слева!", ctx.Message.From.FirstName)
 }
