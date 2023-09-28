@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"encoding/json"
@@ -6,9 +6,14 @@ import (
 	"os"
 )
 
+type Channel struct {
+	Id    int64
+	Title string
+}
+
 const bannedChannelsDatabaseFile = "banned-channels.json"
 
-func readBannedChannelsDatabase() {
+func loadBannedChannelsDb() {
 	content, err := os.ReadFile(bannedChannelsDatabaseFile)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -33,20 +38,20 @@ func writeDatabase() {
 	}
 }
 
-var bannedChannels []channel
+var bannedChannels []Channel
 
-func getBannedChannels() []channel {
+func GetBannedChannels() []Channel {
 	return bannedChannels
 }
 
-func banChannel(ch channel) {
+func BanChannel(ch Channel) {
 	bannedChannels = removeDuplicateChannels(append(bannedChannels, ch))
 	writeDatabase()
 }
 
-func removeDuplicateChannels(sliceList []channel) []channel {
-	allKeys := make(map[channel]bool)
-	list := []channel{}
+func removeDuplicateChannels(sliceList []Channel) []Channel {
+	allKeys := make(map[Channel]bool)
+	list := []Channel{}
 	for _, item := range sliceList {
 		if _, value := allKeys[item]; !value {
 			allKeys[item] = true
@@ -56,8 +61,8 @@ func removeDuplicateChannels(sliceList []channel) []channel {
 	return list
 }
 
-func isChannelIdBanned(channelId int64) bool {
-	for _, ch := range getBannedChannels() {
+func IsChannelIdBanned(channelId int64) bool {
+	for _, ch := range GetBannedChannels() {
 		if ch.Id == channelId {
 			return true
 		}
@@ -65,7 +70,7 @@ func isChannelIdBanned(channelId int64) bool {
 	return false
 }
 
-func clearBannedChannels() {
-	bannedChannels = make([]channel, 0)
+func ClearBannedChannels() {
+	bannedChannels = make([]Channel, 0)
 	writeDatabase()
 }

@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ var adminNicks []string
 
 const adminsDatabaseFile = "admins.json"
 
-func readAdminsDatabase() {
+func loadAdminsDb() {
 	content, err := os.ReadFile(adminsDatabaseFile)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -24,7 +24,7 @@ func readAdminsDatabase() {
 	}
 }
 
-func isAdmin(nick string) bool {
+func IsAdmin(nick string) bool {
 	for _, n := range adminNicks {
 		if n == nick {
 			return true

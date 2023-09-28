@@ -1,17 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/utkinn/telegram-news-in-group-remover/commands"
+	"github.com/utkinn/telegram-news-in-group-remover/db"
+	"github.com/utkinn/telegram-news-in-group-remover/helpers"
 )
 
 func main() {
-	readBannedChannelsDatabase()
-	readAdminsDatabase()
+	db.Load()
 
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
 	if err != nil {
@@ -19,134 +19,77 @@ func main() {
 	}
 
 	updateConfig := tgbotapi.NewUpdate(0)
-
 	updateConfig.Timeout = 30
 
 	updates := bot.GetUpdatesChan(updateConfig)
-
 	for update := range updates {
-		message := update.Message
-		if message == nil {
-			continue
-		}
-
-		fmt.Printf("%+v\n", message.Chat)
-
-		if message.IsCommand() && message.Chat.Type == "private" {
-			if !isAdmin(message.From.UserName) {
-				rejectCommandFromNonAdmin(bot, message)
-				continue
-			}
-			switch message.Command() {
-			case "start":
-				sendHelp(bot, message)
-			case "list":
-				listBannedChannels(bot, message)
-			case "clear":
-				clearBannedChannelsCommand(bot, message)
-			default:
-				sendUnknownCommandResponse(bot, message)
-			}
-		} else {
-			forwardChat := message.ForwardFromChat
-			if forwardChat == nil {
-				continue
-			}
-
-			log.Printf("Got forward from channel %+v\n", message.ForwardFromChat)
-
-			if message.Chat.Type == "private" {
-				channelRecord := channel{Id: message.ForwardFromChat.ID, Title: message.ForwardFromChat.Title}
-				banChannel(channelRecord)
-				sendBanResponse(bot, message)
-			} else {
-				if isChannelIdBanned(forwardChat.ID) {
-					removeMessage(bot, update.Message)
-					mockSender(bot, update.Message)
-				}
-			}
-
-		}
+		handleUpdate(update, bot)
 	}
 }
 
-func rejectCommandFromNonAdmin(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-	sendWithErrorLogging(
-		bot,
-		tgbotapi.NewMessage(message.Chat.ID, "Исчезни, я тебя не знаю."),
-	)
-}
-
-func clearBannedChannelsCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-	clearBannedChannels()
-	response := tgbotapi.NewMessage(message.Chat.ID, "_Список забаненных каналов очищен._")
-	response.ParseMode = "markdown"
-	sendWithErrorLogging(bot, response)
-}
-
-type channel struct {
-	Id    int64
-	Title string
-}
-
-func listBannedChannels(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-	bannedChannels := getBannedChannels()
-	text := listChannelsToString(bannedChannels)
-	response := tgbotapi.NewMessage(message.Chat.ID, text)
-	response.ParseMode = "markdown"
-	sendWithErrorLogging(bot, response)
-}
-
-func listChannelsToString(bannedChannels []channel) string {
-	if len(bannedChannels) == 0 {
-		return "_Каналов нет_"
+func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
+	message := update.Message
+	if message == nil {
+		return
 	}
-	lines := make([]any, len(bannedChannels))
-	for i := 0; i < len(bannedChannels); i++ {
-		lines[i] = fmt.Sprintf("%d. %s\n", i+1, bannedChannels[i].Title)
+
+	ctx := helpers.ResponseContext{Message: message, Bot: bot}
+
+	if message.Chat.Type == "private" {
+		handleMessageToBot(ctx)
+		return
 	}
-	return fmt.Sprint(lines...)
+
+	handleMessageToChannel(ctx, update)
 }
 
-func sendUnknownCommandResponse(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-	text := fmt.Sprintf("*Неизвестная команда: `%s`*", message.Command())
-	response := tgbotapi.NewMessage(message.Chat.ID, text)
-	response.ParseMode = "markdown"
-	sendWithErrorLogging(bot, response)
-}
+func handleMessageToBot(ctx helpers.ResponseContext) {
+	if !db.IsAdmin(ctx.Message.From.UserName) {
+		ctx.SendMarkdownFmt("Исчезни, я тебя не знаю.")
+		return
+	}
 
-func sendBanResponse(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-	text := fmt.Sprintf("Канал *%s* забанен.", message.ForwardFromChat.Title)
-	response := tgbotapi.NewMessage(message.Chat.ID, text)
-	response.ParseMode = "markdown"
-	sendWithErrorLogging(bot, response)
-}
-
-func sendHelp(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-	sendWithErrorLogging(
-		bot,
-		tgbotapi.NewMessage(
-			message.Chat.ID,
-			"Этот бот удаляет сообщения, пересланные из забаненных вами каналов.\n\n"+
-				"Для того, чтобы забанить канал, перешлите из него сообщение сюда.\n"+
-				"Чтобы очистить список забаненных каналов, выполните /clear.\n"+
-				"Посмотреть список забаненных каналов — /list.",
-		),
-	)
-}
-
-func removeMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-	sendWithErrorLogging(bot, tgbotapi.NewDeleteMessage(message.Chat.ID, message.MessageID))
-}
-
-func sendWithErrorLogging(bot *tgbotapi.BotAPI, c tgbotapi.Chattable) {
-	if _, err := bot.Send(c); err != nil {
-		log.Println(err.Error())
+	if ctx.Message.IsCommand() {
+		handleCommand(ctx)
+	} else {
+		banChannelOfForwardedMessage(ctx)
 	}
 }
 
-func mockSender(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-	text := fmt.Sprintf("%s, вспышка слева!", message.From.FirstName)
-	response := tgbotapi.NewMessage(message.Chat.ID, text)
-	sendWithErrorLogging(bot, response)
+func handleCommand(ctx helpers.ResponseContext) {
+	switch ctx.Message.Command() {
+	case "start":
+		commands.Start(ctx)
+	case "list":
+		commands.List(ctx)
+	case "clear":
+		commands.Clear(ctx)
+	default:
+		commands.Unknown(ctx)
+	}
+}
+
+func handleMessageToChannel(ctx helpers.ResponseContext, update tgbotapi.Update) {
+	if db.IsChannelIdBanned(ctx.Message.ForwardFromChat.ID) {
+		removeMessage(ctx)
+		mockSender(ctx)
+	}
+}
+
+func banChannelOfForwardedMessage(ctx helpers.ResponseContext) {
+	channelRecord := db.Channel{Id: ctx.Message.ForwardFromChat.ID, Title: ctx.Message.ForwardFromChat.Title}
+	db.BanChannel(channelRecord)
+	sendBanResponse(ctx)
+}
+
+func sendBanResponse(ctx helpers.ResponseContext) {
+	ctx.SendMarkdownFmt("Канал *%s* забанен.", ctx.Message.ForwardFromChat.Title)
+}
+
+func removeMessage(ctx helpers.ResponseContext) {
+	helpers.Send(ctx.Bot, tgbotapi.NewDeleteMessage(ctx.Message.Chat.ID, ctx.Message.MessageID))
+}
+
+func mockSender(ctx helpers.ResponseContext) {
+	ctx.SendMarkdownFmt("%s, вспышка слева!", ctx.Message.From.FirstName)
 }
