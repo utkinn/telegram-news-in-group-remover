@@ -10,7 +10,8 @@ import (
 )
 
 func main() {
-	readDatabase()
+	readBannedChannelsDatabase()
+	readAdminsDatabase()
 
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
 	if err != nil {
@@ -32,6 +33,10 @@ func main() {
 		fmt.Printf("%+v\n", message.Chat)
 
 		if message.IsCommand() && message.Chat.Type == "private" {
+			if !isAdmin(message.From.UserName) {
+				rejectCommandFromNonAdmin(bot, message)
+				continue
+			}
 			switch message.Command() {
 			case "start":
 				sendHelp(bot, message)
@@ -63,6 +68,13 @@ func main() {
 
 		}
 	}
+}
+
+func rejectCommandFromNonAdmin(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
+	sendWithErrorLogging(
+		bot,
+		tgbotapi.NewMessage(message.Chat.ID, "Исчезни, я тебя не знаю."),
+	)
 }
 
 func clearBannedChannelsCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {

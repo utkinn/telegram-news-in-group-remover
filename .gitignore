@@ -22,3 +22,4 @@ go.work
 
 .env
 banned-channels.json
+admins.json

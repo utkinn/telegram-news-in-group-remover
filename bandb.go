@@ -6,19 +6,19 @@ import (
 	"os"
 )
 
-const databaseFile = "banned-channels.json"
+const bannedChannelsDatabaseFile = "banned-channels.json"
 
-func readDatabase() {
-	content, err := os.ReadFile(databaseFile)
+func readBannedChannelsDatabase() {
+	content, err := os.ReadFile(bannedChannelsDatabaseFile)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return
 		}
-		log.Fatalf("Failed to read %s: %s", databaseFile, err.Error())
+		log.Fatalf("Failed to read %s: %s", bannedChannelsDatabaseFile, err.Error())
 	}
 
 	if err = json.Unmarshal(content, &bannedChannels); err != nil {
-		log.Fatalf("Failed to unmarshal the contents of %s: %s", databaseFile, err.Error())
+		log.Fatalf("Failed to unmarshal the contents of %s: %s", bannedChannelsDatabaseFile, err.Error())
 	}
 }
 
@@ -28,8 +28,8 @@ func writeDatabase() {
 		log.Fatalf("Failed to marshal banned channels: %s", err.Error())
 	}
 
-	if err = os.WriteFile(databaseFile, content, 0644); err != nil {
-		log.Fatalf("Failed to write %s: %s", databaseFile, err.Error())
+	if err = os.WriteFile(bannedChannelsDatabaseFile, content, 0644); err != nil {
+		log.Fatalf("Failed to write %s: %s", bannedChannelsDatabaseFile, err.Error())
 	}
 }
 
