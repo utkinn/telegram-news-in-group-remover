@@ -10,6 +10,8 @@ import (
 )
 
 func main() {
+	readDatabase()
+
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
 	if err != nil {
 		panic(err)
@@ -35,8 +37,8 @@ func main() {
 				sendHelp(bot, message)
 			case "list":
 				listBannedChannels(bot, message)
-			case "unban":
-				// TODO
+			case "clear":
+				clearBannedChannelsCommand(bot, message)
 			default:
 				sendUnknownCommandResponse(bot, message)
 			}
@@ -61,6 +63,18 @@ func main() {
 
 		}
 	}
+}
+
+func clearBannedChannelsCommand(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
+	clearBannedChannels()
+	response := tgbotapi.NewMessage(message.Chat.ID, "_Список забаненных каналов очищен._")
+	response.ParseMode = "markdown"
+	sendWithErrorLogging(bot, response)
+}
+
+type channel struct {
+	Id    int64
+	Title string
 }
 
 func listBannedChannels(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
@@ -101,7 +115,10 @@ func sendHelp(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 		bot,
 		tgbotapi.NewMessage(
 			message.Chat.ID,
-			"Этот бот удаляет сообщения, пересланные из забаненных вами каналов.\n\nДля того, чтобы забанить канал, перешлите из него сообщение сюда.\nЧтобы разбанить канал, воспользуйтесь /unban.\nПосмотреть список забаненных каналов — /list.",
+			"Этот бот удаляет сообщения, пересланные из забаненных вами каналов.\n\n"+
+				"Для того, чтобы забанить канал, перешлите из него сообщение сюда.\n"+
+				"Чтобы очистить список забаненных каналов, выполните /clear.\n"+
+				"Посмотреть список забаненных каналов — /list.",
 		),
 	)
 }
@@ -120,40 +137,4 @@ func mockSender(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	text := fmt.Sprintf("%s, атата!", message.From.FirstName)
 	response := tgbotapi.NewMessage(message.Chat.ID, text)
 	sendWithErrorLogging(bot, response)
-}
-
-type channel struct {
-	Id    int64
-	Title string
-}
-
-var bannedChannels []channel
-
-func getBannedChannels() []channel {
-	return bannedChannels
-}
-
-func banChannel(ch channel) {
-	bannedChannels = removeDuplicateChannels(append(bannedChannels, ch))
-}
-
-func removeDuplicateChannels(sliceList []channel) []channel {
-	allKeys := make(map[channel]bool)
-	list := []channel{}
-	for _, item := range sliceList {
-		if _, value := allKeys[item]; !value {
-			allKeys[item] = true
-			list = append(list, item)
-		}
-	}
-	return list
-}
-
-func isChannelIdBanned(channelId int64) bool {
-	for _, ch := range getBannedChannels() {
-		if ch.Id == channelId {
-			return true
-		}
-	}
-	return false
 }
