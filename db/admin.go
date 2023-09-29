@@ -12,3 +12,8 @@ func IsAdmin(nick string) bool {
 	}
 	return false
 }
+
+// Super-admin is the first admin in the list
+func IsSuperAdmin(nick string) bool {
+	return adminsDb.data[0] == nick
+}
