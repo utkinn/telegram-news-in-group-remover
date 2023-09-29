@@ -8,12 +8,12 @@ import (
 )
 
 func List(ctx helpers.ResponseContext) {
-	ctx.SendSilentMarkdownFmt(listChannelsToString(db.GetBannedChannels()))
+	ctx.SendSilentFmt(listChannelsToString(db.GetBannedChannels()))
 }
 
 func listChannelsToString(bannedChannels []db.Channel) string {
 	if len(bannedChannels) == 0 {
-		return "_Каналов нет_"
+		return "Каналов нет"
 	}
 	lines := make([]any, len(bannedChannels))
 	for i := 0; i < len(bannedChannels); i++ {
