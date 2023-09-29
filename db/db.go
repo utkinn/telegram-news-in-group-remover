@@ -4,4 +4,5 @@ func Load() {
 	loadAdminsDb()
 	loadBannedChannelsDb()
 	loadStickersDb()
+	loadNameReplacementsDb()
 }

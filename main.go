@@ -105,4 +105,5 @@ func mockSender(ctx helpers.ResponseContext) {
 	message := tgbotapi.NewSticker(ctx.Message.Chat.ID, db.GetRandomMockStickerFileId())
 	message.DisableNotification = true
 	helpers.Send(ctx.Bot, message)
+	ctx.SendSilentMarkdownFmt("%s, вспышка слева!", db.GetNameForUser(ctx.Message.From))
 }

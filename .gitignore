@@ -30,3 +30,4 @@ go.work
 banned-channels.json
 admins.json
 stickers.json
+name-replacements.json
