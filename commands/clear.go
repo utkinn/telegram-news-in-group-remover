@@ -1,14 +1,18 @@
 package commands
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/utkinn/telegram-news-in-group-remover/db"
 	"github.com/utkinn/telegram-news-in-group-remover/helpers"
 )
 
+const confirmation = "да начнется же спам"
+
 func Clear(ctx helpers.ResponseContext) {
+	if ctx.Message.CommandArguments() != confirmation {
+		ctx.SendSilentMarkdownFmt("*Вы в своем уме?*\nОтправьте \"/clear %s\" если вы точно хотите начать хаос.", confirmation)
+		return
+	}
+
 	db.ClearBannedChannels()
-	response := tgbotapi.NewMessage(ctx.Message.Chat.ID, "_Список забаненных каналов очищен._")
-	response.ParseMode = "markdown"
-	helpers.Send(ctx.Bot, response)
+	ctx.SendSilentMarkdownFmt("Ну, как хочешь.\n_Список забаненных каналов очищен._")
 }
