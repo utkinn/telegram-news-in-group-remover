@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -44,6 +45,10 @@ func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 }
 
 func handleMessageToBot(ctx helpers.ResponseContext) {
+	if ctx.Message.Sticker != nil {
+		fmt.Println(ctx.Message.Sticker.FileID)
+	}
+
 	if !db.IsAdmin(ctx.Message.From.UserName) {
 		ctx.SendSilentMarkdownFmt("Исчезни, я тебя не знаю.")
 		return
@@ -97,5 +102,7 @@ func removeMessage(ctx helpers.ResponseContext) {
 }
 
 func mockSender(ctx helpers.ResponseContext) {
-	ctx.SendSilentMarkdownFmt("%s, вспышка слева!", ctx.Message.From.FirstName)
+	message := tgbotapi.NewSticker(ctx.Message.Chat.ID, db.GetRandomMockStickerFileId())
+	message.DisableNotification = true
+	helpers.Send(ctx.Bot, message)
 }
