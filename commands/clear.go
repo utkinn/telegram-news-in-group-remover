@@ -9,7 +9,7 @@ const confirmation = "да начнется же спам"
 
 func Clear(ctx helpers.ResponseContext) {
 	if ctx.Message.CommandArguments() != confirmation {
-		ctx.SendSilentMarkdownFmt("*Вы в своем уме?*\nОтправьте \"/clear %s\" если вы точно хотите начать хаос.", confirmation)
+		ctx.SendSilentMarkdownFmt("*Вы в своем уме?*\nОтправьте \"/clear %s\", если вы точно хотите начать хаос.", confirmation)
 		return
 	}
 
