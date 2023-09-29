@@ -45,16 +45,16 @@ func GetBannedChannels() []Channel {
 }
 
 func BanChannel(ch Channel) {
-	bannedChannels = removeDuplicateChannels(append(bannedChannels, ch))
+	bannedChannels = removeDuplicateChannelsById(append(bannedChannels, ch))
 	writeDatabase()
 }
 
-func removeDuplicateChannels(sliceList []Channel) []Channel {
-	allKeys := make(map[Channel]bool)
+func removeDuplicateChannelsById(sliceList []Channel) []Channel {
+	allKeys := make(map[int64]bool)
 	list := []Channel{}
 	for _, item := range sliceList {
-		if _, value := allKeys[item]; !value {
-			allKeys[item] = true
+		if _, value := allKeys[item.Id]; !value {
+			allKeys[item.Id] = true
 			list = append(list, item)
 		}
 	}
