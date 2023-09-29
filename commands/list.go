@@ -3,17 +3,12 @@ package commands
 import (
 	"fmt"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/utkinn/telegram-news-in-group-remover/db"
 	"github.com/utkinn/telegram-news-in-group-remover/helpers"
 )
 
 func List(ctx helpers.ResponseContext) {
-	bannedChannels := db.GetBannedChannels()
-	text := listChannelsToString(bannedChannels)
-	response := tgbotapi.NewMessage(ctx.Message.Chat.ID, text)
-	response.ParseMode = "markdown"
-	helpers.Send(ctx.Bot, response)
+	ctx.SendSilentMarkdownFmt(listChannelsToString(db.GetBannedChannels()))
 }
 
 func listChannelsToString(bannedChannels []db.Channel) string {
