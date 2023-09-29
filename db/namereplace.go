@@ -16,5 +16,5 @@ func GetNameForUser(user *tgbotapi.User) string {
 			return repl.NameReplacement
 		}
 	}
-	return user.UserName
+	return user.FirstName
 }
