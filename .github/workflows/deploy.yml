@@ -22,4 +22,19 @@ jobs:
         go-version: '1.21'
 
     - name: Build
-      run: go build -v ./telegram-news-in-group-remover
+      run: go build -v .
+
+    - name: Run Ansible playbook
+      uses: dawidd6/action-ansible-playbook@v2.6.1
+      with:
+        playbook: .ansible/playbook.yml
+        key: ${{secrets.SSH_PRIVATE_KEY}}
+        inventory: |
+          ${{secrets.SERVER_IP}} ansible_user=news-remover-bot-deploy ansible_port=2345
+        
+          [all]
+          ${{secrets.SERVER_IP}}
+        known_hosts: |
+          ${{secrets.SERVER_IP}} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILhumnfUur1cdeKVUuKE2TZ+gUUb0LM5hNozcm1KCHo5
+          ${{secrets.SERVER_IP}} ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDZlfVyK6Xxq++wwvWScmwinEj8Q8VFQKhrTcSjOgBMLFCOAGBZXlMCSszkbyJaAbcfZCM9U0jtjKFKa3DazwJ2K/s+/vVJmd9tIZmugZ/5QmUfZjL7nTN/YoAGPbjvyE/dLtkUWEL4NkHSvPu4kkuKVBEb180KwuhYw0dPggMCA+49JzE+25aYm892TGc3t8AMpEyUaXvoUZmNUiVB1efB0ekFhJaXJhein/K63J6KsnCHLOZCc1g4te8KbLUNi4i5mkGHEap4sE7CAR4SSto2a9qyBsz3JIWpOK5D1leFsd+A+hIqR3LulOAzWwKWbtDP1zk/2gs3vOaPF5v4BfO1Xu7v7K5GxpQYqr9Ri24Rt89JJSCkBjwb3EpNf8Wda5H9psioAxv0E2sw5/ZTEByE84P+ASgRzPtePtgf6LWetJilUDMWxp4l+Rf4lQuroNO0H5EgtgSFqJVGHum8IAQmQdlksGTla0Y6RK25ftNMxls5ZKuJehLDrXvrczd2RBc=
+          ${{secrets.SERVER_IP}} ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMHu0BIwLqkLMCPf4kejF2kV8Zu4oGXUPobtCZC/dOxoKMassj6jU6cODobFAtZ6a9MqffsweHc3/YHeKqj0HzA=

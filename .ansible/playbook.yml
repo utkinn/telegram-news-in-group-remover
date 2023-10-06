@@ -1,0 +1,14 @@
+- name: Deploy
+  hosts: all
+  tasks:
+    - name: Copy binary to server
+      ansible.builtin.copy:
+        src: ../telegram-news-in-group-remover
+        dest: /opt/news-remover/telegram-news-in-group-remover
+        mode: u=rx,g=w
+
+    - name: Restart the bot
+      become: true
+      ansible.builtin.systemd_service:
+        name: news-remover
+        state: restarted
