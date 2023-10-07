@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -19,12 +20,26 @@ func main() {
 		panic(err)
 	}
 
+	setUpCommandList(bot)
+
 	updateConfig := tgbotapi.NewUpdate(0)
 	updateConfig.Timeout = 30
 
 	updates := bot.GetUpdatesChan(updateConfig)
 	for update := range updates {
 		handleUpdate(update, bot)
+	}
+}
+
+func setUpCommandList(bot *tgbotapi.BotAPI) {
+	commandListConfig := tgbotapi.NewSetMyCommandsWithScope(
+		tgbotapi.NewBotCommandScopeAllPrivateChats(),
+		tgbotapi.BotCommand{Command: "start", Description: "Справка"},
+		tgbotapi.BotCommand{Command: "list", Description: "Список забаненных каналов"},
+		tgbotapi.BotCommand{Command: "clear", Description: "Разбанить все каналы"},
+	)
+	if _, err := bot.Request(commandListConfig); err != nil {
+		log.Printf("Failed to hide commands in groups: %v", err.Error())
 	}
 }
 
