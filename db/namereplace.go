@@ -7,7 +7,7 @@ type nameReplacement struct {
 }
 
 var nameReplacementsDb = database[nameReplacement]{
-	filename: "name-replacement.json",
+	filename: "name-replacements.json",
 }
 
 func GetNameForUser(user *tgbotapi.User) string {

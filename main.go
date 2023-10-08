@@ -90,7 +90,6 @@ func handleCommand(ctx helpers.ResponseContext) {
 }
 
 func handleMessageToGroup(ctx helpers.ResponseContext, update tgbotapi.Update) {
-	log.Printf("Received message from %#v", ctx.Message.From)
 	if ctx.Message.ForwardFromChat == nil {
 		return
 	}
