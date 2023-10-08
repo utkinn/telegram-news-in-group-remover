@@ -56,7 +56,7 @@ func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 		return
 	}
 
-	handleMessageToChannel(ctx, update)
+	handleMessageToGroup(ctx, update)
 }
 
 func handleMessageToBot(ctx helpers.ResponseContext) {
@@ -89,13 +89,15 @@ func handleCommand(ctx helpers.ResponseContext) {
 	}
 }
 
-func handleMessageToChannel(ctx helpers.ResponseContext, update tgbotapi.Update) {
+func handleMessageToGroup(ctx helpers.ResponseContext, update tgbotapi.Update) {
 	if ctx.Message.ForwardFromChat == nil {
 		return
 	}
 	if db.IsChannelIdBanned(ctx.Message.ForwardFromChat.ID) {
 		removeMessage(ctx)
 		mockSender(ctx)
+	} else {
+		forwardMemory = append(forwardMemory, newForwardMemoryItem(ctx.Message))
 	}
 }
 
@@ -105,7 +107,28 @@ func banChannelOfForwardedMessage(ctx helpers.ResponseContext) {
 	}
 	channelRecord := db.Channel{Id: ctx.Message.ForwardFromChat.ID, Title: ctx.Message.ForwardFromChat.Title}
 	db.BanChannel(channelRecord)
+	removeMessagesFromNewlyBannedChannel(ctx.Bot, channelRecord)
 	sendBanResponse(ctx)
+}
+
+func removeMessagesFromNewlyBannedChannel(bot *tgbotapi.BotAPI, chanRec db.Channel) {
+	mockedUserNames := map[string]bool{}
+	for _, item := range forwardMemory {
+		if item.channelId == chanRec.Id {
+			helpers.Send(bot, tgbotapi.NewDeleteMessage(item.groupChatId, item.messageId))
+			if !mockedUserNames[item.from.UserName] {
+				// TODO: refactor
+				message := tgbotapi.NewSticker(item.groupChatId, db.GetRandomMockStickerFileId())
+				message.DisableNotification = true
+				helpers.Send(bot, message)
+				msg := tgbotapi.NewMessage(item.groupChatId, fmt.Sprintf("%s, вспышка слева!", db.GetNameForUser(&item.from)))
+				msg.DisableNotification = true
+				helpers.Send(bot, msg)
+
+				mockedUserNames[item.from.UserName] = true
+			}
+		}
+	}
 }
 
 func sendBanResponse(ctx helpers.ResponseContext) {
