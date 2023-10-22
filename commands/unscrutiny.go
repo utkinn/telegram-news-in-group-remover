@@ -7,10 +7,11 @@ import (
 )
 
 var unscrutinyCommand = newCommand("unscrutiny", "<ник> - Прекратить пристальное внимание за пользователем", func(ctx helpers.ResponseContext) {
-	args := ctx.Message.CommandArguments()
-	if len(args) == 0 || strings.Contains(args, " ") {
+	userName := ctx.Message.CommandArguments()
+	if len(userName) == 0 || strings.Contains(userName, " ") {
 		ctx.SendSilentMarkdownFmt("_Нужен один аргумент — ник пользователя._")
 		return
 	}
-	db.RemoveFromScrutiny(args)
+	db.RemoveFromScrutiny(userName)
+	ctx.SendSilentMarkdownFmt("%s выписан из списка *пристального присмотра*.", userName)
 })

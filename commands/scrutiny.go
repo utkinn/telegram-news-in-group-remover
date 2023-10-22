@@ -7,10 +7,11 @@ import (
 )
 
 var scrutinyCommand = newCommand("scrutiny", "<ник> - Начать пристальное внимание за пользователем", func(ctx helpers.ResponseContext) {
-	args := ctx.Message.CommandArguments()
-	if len(args) == 0 || strings.Contains(args, " ") {
+	userName := ctx.Message.CommandArguments()
+	if len(userName) == 0 || strings.Contains(userName, " ") {
 		ctx.SendSilentMarkdownFmt("_Нужен один аргумент — ник пользователя._")
 		return
 	}
-	db.AddToScrutiny(args)
+	db.AddToScrutiny(userName)
+	ctx.SendSilentMarkdownFmt("%s теперь под *пристальным присмотром*.", userName)
 })
