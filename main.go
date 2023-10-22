@@ -75,10 +75,15 @@ func handleMessageToBot(ctx helpers.ResponseContext) {
 }
 
 func handleMessageToGroup(ctx helpers.ResponseContext) {
+	if !passesScrutinyFilters(ctx.Message) {
+		removeMessage(ctx)
+		mockSender(ctx.Bot, ctx.Message.Chat.ID, ctx.Message.From)
+	}
+
 	if ctx.Message.ForwardFromChat == nil {
 		return
 	}
-	if db.IsChannelIdBanned(ctx.Message.ForwardFromChat.ID) || !passesScrutinyFilters(ctx.Message) {
+	if db.IsChannelIdBanned(ctx.Message.ForwardFromChat.ID) {
 		removeMessage(ctx)
 		mockSender(ctx.Bot, ctx.Message.Chat.ID, ctx.Message.From)
 	} else {
