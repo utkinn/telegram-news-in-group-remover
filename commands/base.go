@@ -39,6 +39,8 @@ var commands = []command{
 	clearCommand,
 	listCommand,
 	startCommand,
+	scrutinyCommand,
+	unscrutinyCommand,
 }
 
 func GetCommandList() []tgbotapi.BotCommand {
