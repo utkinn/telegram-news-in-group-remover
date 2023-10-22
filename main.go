@@ -34,9 +34,7 @@ func main() {
 func setUpCommandList(bot *tgbotapi.BotAPI) {
 	commandListConfig := tgbotapi.NewSetMyCommandsWithScope(
 		tgbotapi.NewBotCommandScopeAllPrivateChats(),
-		tgbotapi.BotCommand{Command: "start", Description: "Справка"},
-		tgbotapi.BotCommand{Command: "list", Description: "Список забаненных каналов"},
-		tgbotapi.BotCommand{Command: "clear", Description: "Разбанить все каналы"},
+		commands.GetCommandList()...,
 	)
 	if _, err := bot.Request(commandListConfig); err != nil {
 		log.Printf("Failed to hide commands in groups: %v", err.Error())
@@ -70,22 +68,9 @@ func handleMessageToBot(ctx helpers.ResponseContext) {
 	}
 
 	if ctx.Message.IsCommand() {
-		handleCommand(ctx)
+		commands.Execute(ctx)
 	} else {
 		banChannelOfForwardedMessage(ctx)
-	}
-}
-
-func handleCommand(ctx helpers.ResponseContext) {
-	switch ctx.Message.Command() {
-	case "start":
-		commands.Start(ctx)
-	case "list":
-		commands.List(ctx)
-	case "clear":
-		commands.Clear(ctx)
-	default:
-		commands.Unknown(ctx)
 	}
 }
 

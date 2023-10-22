@@ -7,9 +7,9 @@ import (
 	"github.com/utkinn/telegram-news-in-group-remover/helpers"
 )
 
-func List(ctx helpers.ResponseContext) {
+var listCommand = newCommand("list", "Список забаненных каналов", func(ctx helpers.ResponseContext) {
 	ctx.SendSilentFmt(listChannelsToString(db.GetBannedChannels()))
-}
+})
 
 func listChannelsToString(bannedChannels []db.Channel) string {
 	if len(bannedChannels) == 0 {
