@@ -13,5 +13,5 @@ var scrutinyCommand = newCommand("scrutiny", "<ник> - Начать прист
 		return
 	}
 	db.AddToScrutiny(userName)
-	ctx.SendSilentMarkdownFmt("%s теперь под *пристальным присмотром*.", userName)
+	ctx.SendSilentMarkdownFmt("*%s* теперь под _пристальным присмотром_.", userName)
 })

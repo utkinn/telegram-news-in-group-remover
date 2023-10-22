@@ -13,8 +13,8 @@ var unscrutinyCommand = newCommand("unscrutiny", "<ник> - Прекратит�
 		return
 	}
 	if db.RemoveFromScrutiny(userName) {
-		ctx.SendSilentMarkdownFmt("%s выписан из списка *пристального присмотра*.", userName)
+		ctx.SendSilentMarkdownFmt("*%s* выписан из списка _пристального присмотра_.", userName)
 	} else {
-		ctx.SendSilentMarkdownFmt("%s не было в списке *пристального присмотра*, но вычеркнуть я попытался.", userName)
+		ctx.SendSilentMarkdownFmt("*%s* не было в списке _пристального присмотра_, но вычеркнуть я попытался.", userName)
 	}
 })
