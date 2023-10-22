@@ -50,15 +50,20 @@ func (db *database[T]) add(item T) {
 	db.write()
 }
 
-func (db *database[T]) removeByCallback(cb func(item T) bool) {
+func (db *database[T]) removeByCallback(cb func(item T) bool) bool {
+	removedSomething := false
 	newData := make([]T, 0, len(db.data))
 	for _, item := range db.data {
 		if cb(item) {
 			newData = append(newData, item)
+		} else {
+			removedSomething = true
 		}
 	}
 	db.data = newData
 	db.write()
+
+	return removedSomething
 }
 
 func (db *database[T]) anyByCallback(cb func(item T) bool) bool {
