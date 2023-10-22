@@ -11,6 +11,7 @@ func Load() {
 	bannedChannelsDb.load()
 	stickersDb.load()
 	nameReplacementsDb.load()
+	scrutinyDb.load()
 }
 
 type database[T any] struct {
@@ -42,4 +43,29 @@ func (db *database[T]) write() {
 	if err = os.WriteFile(db.filename, content, 0644); err != nil {
 		log.Fatalf("Failed to write %s: %s", db.filename, err.Error())
 	}
+}
+
+func (db *database[T]) add(item T) {
+	db.data = append(db.data, item)
+	db.write()
+}
+
+func (db *database[T]) removeByCallback(cb func(item T) bool) {
+	newData := make([]T, 0, len(db.data))
+	for _, item := range db.data {
+		if cb(item) {
+			newData = append(newData, item)
+		}
+	}
+	db.data = newData
+	db.write()
+}
+
+func (db *database[T]) anyByCallback(cb func(item T) bool) bool {
+	for _, item := range db.data {
+		if cb(item) {
+			return true
+		}
+	}
+	return false
 }
