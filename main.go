@@ -56,7 +56,7 @@ func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 		return
 	}
 
-	handleMessageToGroup(ctx, update)
+	handleMessageToGroup(ctx)
 }
 
 func handleMessageToBot(ctx helpers.ResponseContext) {
@@ -89,13 +89,13 @@ func handleCommand(ctx helpers.ResponseContext) {
 	}
 }
 
-func handleMessageToGroup(ctx helpers.ResponseContext, update tgbotapi.Update) {
+func handleMessageToGroup(ctx helpers.ResponseContext) {
 	if ctx.Message.ForwardFromChat == nil {
 		return
 	}
 	if db.IsChannelIdBanned(ctx.Message.ForwardFromChat.ID) {
 		removeMessage(ctx)
-		mockSender(ctx)
+		mockSender(ctx.Bot, ctx.Message.Chat.ID, ctx.Message.From)
 	} else {
 		forwardMemory = append(forwardMemory, newForwardMemoryItem(ctx.Message))
 	}
@@ -112,21 +112,16 @@ func banChannelOfForwardedMessage(ctx helpers.ResponseContext) {
 }
 
 func removeMessagesFromNewlyBannedChannel(bot *tgbotapi.BotAPI, chanRec db.Channel) {
-	mockedUserNames := map[string]bool{}
+	userNamesMockedSoFar := map[string]bool{}
 	for _, item := range forwardMemory {
-		if item.channelId == chanRec.Id {
-			helpers.Send(bot, tgbotapi.NewDeleteMessage(item.groupChatId, item.messageId))
-			if !mockedUserNames[item.from.UserName] {
-				// TODO: refactor
-				message := tgbotapi.NewSticker(item.groupChatId, db.GetRandomMockStickerFileId())
-				message.DisableNotification = true
-				helpers.Send(bot, message)
-				msg := tgbotapi.NewMessage(item.groupChatId, fmt.Sprintf("%s, вспышка слева!", db.GetNameForUser(&item.from)))
-				msg.DisableNotification = true
-				helpers.Send(bot, msg)
+		if item.channelId != chanRec.Id {
+			continue
+		}
 
-				mockedUserNames[item.from.UserName] = true
-			}
+		helpers.Send(bot, tgbotapi.NewDeleteMessage(item.groupChatId, item.messageId))
+		if !userNamesMockedSoFar[item.from.UserName] {
+			mockSender(bot, item.groupChatId, &item.from)
+			userNamesMockedSoFar[item.from.UserName] = true
 		}
 	}
 }
@@ -139,9 +134,11 @@ func removeMessage(ctx helpers.ResponseContext) {
 	helpers.Send(ctx.Bot, tgbotapi.NewDeleteMessage(ctx.Message.Chat.ID, ctx.Message.MessageID))
 }
 
-func mockSender(ctx helpers.ResponseContext) {
-	message := tgbotapi.NewSticker(ctx.Message.Chat.ID, db.GetRandomMockStickerFileId())
+func mockSender(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tgbotapi.User) {
+	message := tgbotapi.NewSticker(groupChatId, db.GetRandomMockStickerFileId())
 	message.DisableNotification = true
-	helpers.Send(ctx.Bot, message)
-	ctx.SendSilentMarkdownFmt("%s, вспышка слева!", db.GetNameForUser(ctx.Message.From))
+	helpers.Send(bot, message)
+	msg := tgbotapi.NewMessage(groupChatId, fmt.Sprintf("%s, вспышка слева!", db.GetNameForUser(newsSender)))
+	msg.DisableNotification = true
+	helpers.Send(bot, msg)
 }
