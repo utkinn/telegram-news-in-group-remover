@@ -83,31 +83,35 @@ func handleMessageToBot(ctx helpers.ResponseContext) {
 	if ctx.Message.IsCommand() {
 		commands.Execute(ctx)
 	} else {
-		banChannelOfForwardedMessage(ctx)
+		if ctx.Message.ForwardFromChat == nil {
+			removeMessageAndMockSender(ctx)
+		} else {
+			banChannelOfForwardedMessage(ctx)
+		}
 	}
 }
 
 func handleMessageToGroup(ctx helpers.ResponseContext) {
 	if !passesScrutinyFilters(ctx.Message) {
-		removeMessage(ctx)
-		mockSender(ctx.Bot, ctx.Message.Chat.ID, ctx.Message.From)
+		removeMessageAndMockSender(ctx)
 	}
 
 	if ctx.Message.ForwardFromChat == nil {
 		return
 	}
 	if db.IsChannelIdBanned(ctx.Message.ForwardFromChat.ID) {
-		removeMessage(ctx)
-		mockSender(ctx.Bot, ctx.Message.Chat.ID, ctx.Message.From)
+		removeMessageAndMockSender(ctx)
 	} else {
 		forwardMemory = append(forwardMemory, newForwardMemoryItem(ctx.Message))
 	}
 }
 
+func removeMessageAndMockSender(ctx helpers.ResponseContext) {
+	removeMessage(ctx)
+	mockSender(ctx.Bot, ctx.Message.Chat.ID, ctx.Message.From)
+}
+
 func banChannelOfForwardedMessage(ctx helpers.ResponseContext) {
-	if ctx.Message.ForwardFromChat == nil {
-		return
-	}
 	channelRecord := db.Channel{Id: ctx.Message.ForwardFromChat.ID, Title: ctx.Message.ForwardFromChat.Title}
 	db.BanChannel(channelRecord)
 	removeMessagesFromNewlyBannedChannel(ctx.Bot, channelRecord)
