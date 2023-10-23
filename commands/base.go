@@ -59,6 +59,7 @@ var commands = []command{
 	noUpdateNewsCommand,
 	scrutinyCommand,
 	unscrutinyCommand,
+	restartNotificationCommand,
 }
 
 func GetCommandList() []tgbotapi.BotCommand {

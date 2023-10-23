@@ -20,6 +20,8 @@ func main() {
 		panic(err)
 	}
 
+	notifyRestart(bot)
+
 	setUpCommandList(bot)
 
 	updateConfig := tgbotapi.NewUpdate(0)
@@ -29,6 +31,17 @@ func main() {
 	for update := range updates {
 		handleUpdate(update, bot)
 	}
+}
+
+func notifyRestart(bot *tgbotapi.BotAPI) {
+	superAdminChatId := db.GetSuperAdminChatId()
+	if superAdminChatId == -1 {
+		return
+	}
+
+	msg := tgbotapi.NewMessage(superAdminChatId, "_Бот пезерапущен_")
+	msg.ParseMode = "markdown"
+	helpers.Send(bot, msg)
 }
 
 func setUpCommandList(bot *tgbotapi.BotAPI) {
