@@ -39,6 +39,7 @@ var commands = []command{
 	clearCommand,
 	listCommand,
 	startCommand,
+	announceCommand,
 	scrutinyCommand,
 	unscrutinyCommand,
 }

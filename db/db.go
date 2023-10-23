@@ -11,6 +11,7 @@ func Load() {
 	bannedChannelsDb.load()
 	stickersDb.load()
 	nameReplacementsDb.load()
+	announcementsDb.load()
 	scrutinyDb.load()
 }
 
