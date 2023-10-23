@@ -11,6 +11,7 @@ type commandCallback func(ctx helpers.ResponseContext)
 type command struct {
 	name, help string
 	callback   commandCallback
+	hidden     bool
 }
 
 func newCommand(name, help string, callback commandCallback) command {
@@ -35,6 +36,20 @@ func newSuperAdminCommand(name, help string, callback commandCallback) command {
 	}
 }
 
+func newHiddenSuperAdminCommand(name string, callback commandCallback) command {
+	return command{
+		name:   name,
+		hidden: true,
+		callback: func(ctx helpers.ResponseContext) {
+			if !db.IsSuperAdmin(ctx.Message.From.UserName) {
+				ctx.SendSilentMarkdownFmt("_Эта команда доступна только для суперадмина._")
+				return
+			}
+			callback(ctx)
+		},
+	}
+}
+
 var commands = []command{
 	clearCommand,
 	listCommand,
@@ -47,9 +62,11 @@ var commands = []command{
 }
 
 func GetCommandList() []tgbotapi.BotCommand {
-	cmdList := make([]tgbotapi.BotCommand, len(commands))
-	for i, cmd := range commands {
-		cmdList[i] = tgbotapi.BotCommand{Command: cmd.name, Description: cmd.help}
+	cmdList := make([]tgbotapi.BotCommand, 0, len(commands))
+	for _, cmd := range commands {
+		if !cmd.hidden {
+			cmdList = append(cmdList, tgbotapi.BotCommand{Command: cmd.name, Description: cmd.help})
+		}
 	}
 	return cmdList
 }
