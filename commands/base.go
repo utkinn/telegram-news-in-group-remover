@@ -40,6 +40,8 @@ var commands = []command{
 	listCommand,
 	startCommand,
 	announceCommand,
+	getUpdateNewsCommand,
+	noUpdateNewsCommand,
 	scrutinyCommand,
 	unscrutinyCommand,
 }
