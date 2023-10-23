@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -146,6 +148,14 @@ func mockSender(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tgbotapi.Us
 	message.DisableNotification = true
 	helpers.Send(bot, message)
 	msg := tgbotapi.NewMessage(groupChatId, fmt.Sprintf("%s, вспышка слева!", db.GetNameForUser(newsSender)))
+	userNameHash := sha256.Sum256([]byte(newsSender.UserName))
+	if hex.EncodeToString(userNameHash[:]) == "2d2aa474c3574e0c36d120d1a60f8f729fc355b8ac379c3cb529609ee60788f2" {
+		msg.Text = fmt.Sprintf(
+			"%s, [иди поищи работу](https://magnitogorsk.hh.ru/search/vacancy?L_save_area=true&text=&excluded_text=&area=1399&salary=&currency_code=RUR&experience=noExperience&employment=full&employment=part&schedule=fullDay&schedule=shift&schedule=flexible&order_by=relevance&search_period=0&items_on_page=50)",
+			db.GetNameForUser(newsSender),
+		)
+		msg.ParseMode = "markdown"
+	}
 	msg.DisableNotification = true
 	helpers.Send(bot, msg)
 }
