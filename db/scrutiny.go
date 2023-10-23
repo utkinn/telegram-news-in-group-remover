@@ -7,12 +7,12 @@ var scrutinyDb = database[string]{
 }
 
 func AddToScrutiny(nick string) {
-	scrutinyDb.add(normalizeNick(nick))
+	scrutinyDb.addNoDupe(normalizeNick(nick), func(a, b string) bool { return a == b })
 }
 
 func RemoveFromScrutiny(nick string) bool {
 	nick = normalizeNick(nick)
-	return scrutinyDb.filterInPlaceAndWrite(func(n string) bool { return n != nick })
+	return scrutinyDb.removeNotMatching(func(n string) bool { return n != nick })
 }
 
 func IsUnderScrutiny(nick string) bool {

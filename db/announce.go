@@ -16,12 +16,12 @@ func GetChatIdsOfAdminsSubscribedToAnnouncements() []int64 {
 }
 
 func SubscribeToAnnouncements(chatId int64, userName string) {
-	announcementsDb.add(announcementSubscription{
+	announcementsDb.addNoDupe(announcementSubscription{
 		UserName: userName,
 		ChatId:   chatId,
-	})
+	}, func(a, b announcementSubscription) bool { return a.ChatId == b.ChatId })
 }
 
 func UnsubscribeFromAnnouncements(chatId int64) {
-	announcementsDb.filterInPlaceAndWrite(func(ann announcementSubscription) bool { return ann.ChatId != chatId })
+	announcementsDb.removeNotMatching(func(ann announcementSubscription) bool { return ann.ChatId != chatId })
 }

@@ -51,7 +51,16 @@ func (db *database[T]) add(item T) {
 	db.write()
 }
 
-func (db *database[T]) filterInPlaceAndWrite(cb func(item T) bool) bool {
+func (db *database[T]) addNoDupe(item T, equal func(a, b T) bool) {
+	for _, x := range db.data {
+		if equal(x, item) {
+			return
+		}
+	}
+	db.add(item)
+}
+
+func (db *database[T]) removeNotMatching(cb func(item T) bool) bool {
 	removedSomething := false
 	newData := make([]T, 0, len(db.data))
 	for _, item := range db.data {
