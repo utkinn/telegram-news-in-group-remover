@@ -12,11 +12,11 @@ func AddToScrutiny(nick string) {
 
 func RemoveFromScrutiny(nick string) bool {
 	nick = normalizeNick(nick)
-	return scrutinyDb.removeByCallback(func(n string) bool { return n != nick })
+	return scrutinyDb.filterInPlaceAndWrite(func(n string) bool { return n != nick })
 }
 
 func IsUnderScrutiny(nick string) bool {
-	return scrutinyDb.anyByCallback(func(n string) bool { return n == nick })
+	return scrutinyDb.any(func(n string) bool { return n == nick })
 }
 
 func normalizeNick(nick string) string {

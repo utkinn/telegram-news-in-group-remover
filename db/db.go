@@ -51,7 +51,7 @@ func (db *database[T]) add(item T) {
 	db.write()
 }
 
-func (db *database[T]) removeByCallback(cb func(item T) bool) bool {
+func (db *database[T]) filterInPlaceAndWrite(cb func(item T) bool) bool {
 	removedSomething := false
 	newData := make([]T, 0, len(db.data))
 	for _, item := range db.data {
@@ -67,7 +67,7 @@ func (db *database[T]) removeByCallback(cb func(item T) bool) bool {
 	return removedSomething
 }
 
-func (db *database[T]) anyByCallback(cb func(item T) bool) bool {
+func (db *database[T]) any(cb func(item T) bool) bool {
 	for _, item := range db.data {
 		if cb(item) {
 			return true
