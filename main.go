@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	_ "github.com/joho/godotenv/autoload"
@@ -82,6 +83,10 @@ func handleMessageToBot(ctx helpers.ResponseContext) {
 		return
 	}
 
+	if ctx.Message.Caption == "" && ctx.Message.Text == "" {
+		return
+	}
+
 	if ctx.Message.IsCommand() {
 		commands.Execute(ctx)
 	} else {
@@ -143,7 +148,13 @@ func removeMessage(ctx helpers.ResponseContext) {
 	helpers.Send(ctx.Bot, tgbotapi.NewDeleteMessage(ctx.Message.Chat.ID, ctx.Message.MessageID))
 }
 
+var lastMockAt time.Time
+
 func mockSender(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tgbotapi.User) {
+	if time.Now().Sub(lastMockAt).Minutes() < 1 {
+		return
+	}
+	lastMockAt = time.Now()
 	message := tgbotapi.NewSticker(groupChatId, db.GetRandomMockStickerFileId())
 	message.DisableNotification = true
 	helpers.Send(bot, message)
