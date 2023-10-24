@@ -91,7 +91,7 @@ func handleMessageToBot(ctx helpers.ResponseContext) {
 		commands.Execute(ctx)
 	} else {
 		if ctx.Message.ForwardFromChat == nil {
-			removeMessageAndMockSender(ctx)
+			removeMessageAndMockSender(ctx, db.MsgRemovalManual)
 		} else {
 			banChannelOfForwardedMessage(ctx)
 		}
@@ -100,21 +100,21 @@ func handleMessageToBot(ctx helpers.ResponseContext) {
 
 func handleMessageToGroup(ctx helpers.ResponseContext) {
 	if !passesScrutinyFilters(ctx.Message) {
-		removeMessageAndMockSender(ctx)
+		removeMessageAndMockSender(ctx, db.MsgRemovalAuto)
 	}
 
 	if ctx.Message.ForwardFromChat == nil {
 		return
 	}
 	if db.IsChannelIdBanned(ctx.Message.ForwardFromChat.ID) {
-		removeMessageAndMockSender(ctx)
+		removeMessageAndMockSender(ctx, db.MsgRemovalAuto)
 	} else {
 		forwardMemory = append(forwardMemory, newForwardMemoryItem(ctx.Message))
 	}
 }
 
-func removeMessageAndMockSender(ctx helpers.ResponseContext) {
-	removeMessage(ctx)
+func removeMessageAndMockSender(ctx helpers.ResponseContext, removalType db.MsgRemovalType) {
+	removeMessage(ctx, removalType)
 	mockSender(ctx.Bot, ctx.Message.Chat.ID, ctx.Message.From)
 }
 
@@ -144,8 +144,9 @@ func sendBanResponse(ctx helpers.ResponseContext) {
 	ctx.SendSilentMarkdownFmt("Канал *%s* забанен.", ctx.Message.ForwardFromChat.Title)
 }
 
-func removeMessage(ctx helpers.ResponseContext) {
+func removeMessage(ctx helpers.ResponseContext, removalType db.MsgRemovalType) {
 	helpers.Send(ctx.Bot, tgbotapi.NewDeleteMessage(ctx.Message.Chat.ID, ctx.Message.MessageID))
+	db.RecordMessageRemoval(ctx.Message, removalType)
 }
 
 var lastMockAt time.Time

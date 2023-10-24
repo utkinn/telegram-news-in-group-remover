@@ -13,6 +13,7 @@ func Load() {
 	nameReplacementsDb.load()
 	announcementsDb.load()
 	scrutinyDb.load()
+	removalsDb.load()
 }
 
 type database[T any] struct {
