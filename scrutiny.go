@@ -27,7 +27,6 @@ func passesScrutinyFilters(msg *tgbotapi.Message) bool {
 }
 
 func matchesBannedRegexes(text, caption string) bool {
-	// TODO: remove messages AND attachments
 	regexes := db.GetRegexes()
 	for _, regex := range regexes {
 		caseInsensitiveRegex, err := regexp2.Compile(regex, regexp2.IgnoreCase)

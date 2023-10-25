@@ -94,7 +94,16 @@ func handleMessageToBot(ctx helpers.ResponseContext) {
 	}
 }
 
+var offendingMediaGroupId string
+
 func handleMessageToGroup(ctx helpers.ResponseContext) {
+	if ctx.Message.MediaGroupID != "" && ctx.Message.MediaGroupID == offendingMediaGroupId {
+		removeMessage(ctx.Bot, ctx.Message)
+	}
+
+	// Get ready to remove the entire album
+	offendingMediaGroupId = ctx.Message.MediaGroupID
+
 	if !passesScrutinyFilters(ctx.Message) {
 		removeMessageAndMockSender(ctx.Bot, ctx.Message)
 	}
