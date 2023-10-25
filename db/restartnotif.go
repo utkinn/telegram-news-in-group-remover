@@ -14,11 +14,13 @@ func SetSuperAdminChatId(chatId int64) {
 	}
 }
 
+const SuperAdminChatIdNotSet = -1
+
 func GetSuperAdminChatId() int64 {
 	idBytes, err := os.ReadFile(superAdminChatIdFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return -1
+			return SuperAdminChatIdNotSet
 		}
 		log.Printf("Failed to load admin chat ID: %v\n", err)
 	}

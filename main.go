@@ -38,7 +38,7 @@ func main() {
 
 func notifyRestart(bot *tgbotapi.BotAPI) {
 	superAdminChatId := db.GetSuperAdminChatId()
-	if superAdminChatId == -1 {
+	if superAdminChatId == db.SuperAdminChatIdNotSet {
 		return
 	}
 
