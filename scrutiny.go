@@ -6,17 +6,11 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/utkinn/telegram-news-in-group-remover/db"
 	"log"
-	"strings"
 )
 
 func passesScrutinyFilters(msg *tgbotapi.Message) bool {
 	if !db.IsUnderScrutiny(msg.From.UserName) {
 		return true
-	}
-
-	// Ban suspected copies of news texts
-	if strings.Contains(msg.Text, "\n\n") {
-		return false
 	}
 
 	if matchesBannedRegexes(msg.Text, msg.Caption) {
