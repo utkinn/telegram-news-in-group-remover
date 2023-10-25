@@ -14,6 +14,7 @@ func Load() {
 	announcementsDb.load()
 	scrutinyDb.load()
 	removalsDb.load()
+	bannedRegexesDb.load()
 }
 
 type database[T any] struct {

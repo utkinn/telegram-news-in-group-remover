@@ -60,6 +60,9 @@ var commands = []command{
 	scrutinyCommand,
 	unscrutinyCommand,
 	restartNotificationCommand,
+	banRegexCommand,
+	listRegexCommand,
+	unbanRegexCommand,
 }
 
 func GetCommandList() []tgbotapi.BotCommand {
