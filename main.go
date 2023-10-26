@@ -15,6 +15,8 @@ import (
 	"github.com/utkinn/telegram-news-in-group-remover/helpers"
 )
 
+var mockCleanupQueue = make(chan mock, 100)
+
 func main() {
 	db.Load()
 
@@ -29,6 +31,8 @@ func main() {
 
 	updateConfig := tgbotapi.NewUpdate(0)
 	updateConfig.Timeout = 30
+
+	go mockCleaner(bot)
 
 	updates := bot.GetUpdatesChan(updateConfig)
 	for update := range updates {
@@ -163,7 +167,7 @@ func mockSender(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tgbotapi.Us
 	lastMockAt = time.Now()
 	message := tgbotapi.NewSticker(groupChatId, db.GetRandomMockStickerFileId())
 	message.DisableNotification = true
-	helpers.Send(bot, message)
+	stickerActualMessage := helpers.Send(bot, message)
 	msg := tgbotapi.NewMessage(groupChatId, fmt.Sprintf("%s, вспышка слева!", db.GetNameForUser(newsSender)))
 	userNameHash := sha256.Sum256([]byte(newsSender.UserName))
 	if hex.EncodeToString(userNameHash[:]) == "2d2aa474c3574e0c36d120d1a60f8f729fc355b8ac379c3cb529609ee60788f2" {
@@ -174,5 +178,6 @@ func mockSender(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tgbotapi.Us
 		msg.ParseMode = "markdown"
 	}
 	msg.DisableNotification = true
-	helpers.Send(bot, msg)
+	textActualMessage := helpers.Send(bot, msg)
+	mockCleanupQueue <- mock{messages: []*tgbotapi.Message{stickerActualMessage, textActualMessage}, time: time.Now()}
 }

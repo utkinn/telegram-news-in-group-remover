@@ -12,21 +12,25 @@ type ResponseContext struct {
 	Bot     *tgbotapi.BotAPI
 }
 
-func Send(bot *tgbotapi.BotAPI, c tgbotapi.Chattable) {
-	if _, err := bot.Send(c); err != nil {
+func Send(bot *tgbotapi.BotAPI, c tgbotapi.Chattable) *tgbotapi.Message {
+	var msg tgbotapi.Message
+	var err error
+	if msg, err = bot.Send(c); err != nil {
 		log.Println(err.Error())
+		return nil
 	}
+	return &msg
 }
 
-func (ctx ResponseContext) SendSilentFmt(format string, args ...any) {
+func (ctx ResponseContext) SendSilentFmt(format string, args ...any) *tgbotapi.Message {
 	msg := tgbotapi.NewMessage(ctx.Message.Chat.ID, fmt.Sprintf(format, args...))
 	msg.DisableNotification = true
-	Send(ctx.Bot, msg)
+	return Send(ctx.Bot, msg)
 }
 
-func (ctx ResponseContext) SendSilentMarkdownFmt(format string, args ...any) {
+func (ctx ResponseContext) SendSilentMarkdownFmt(format string, args ...any) *tgbotapi.Message {
 	msg := tgbotapi.NewMessage(ctx.Message.Chat.ID, fmt.Sprintf(format, args...))
 	msg.ParseMode = "markdown"
 	msg.DisableNotification = true
-	Send(ctx.Bot, msg)
+	return Send(ctx.Bot, msg)
 }
