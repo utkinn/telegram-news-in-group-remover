@@ -1,6 +1,6 @@
 package main
 
-import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+import tgbotapi "github.com/utkinn/telegram-bot-api/v5"
 
 type forwardMemoryItem struct {
 	groupChatId, channelId int64

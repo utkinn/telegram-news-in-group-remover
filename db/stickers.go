@@ -3,7 +3,7 @@ package db
 import (
 	"math/rand"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/utkinn/telegram-bot-api/v5"
 )
 
 var stickersDb = database[string]{

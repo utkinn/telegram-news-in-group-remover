@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"github.com/dlclark/regexp2"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/utkinn/telegram-bot-api/v5"
 	"github.com/utkinn/telegram-news-in-group-remover/db"
 	"log"
 )
