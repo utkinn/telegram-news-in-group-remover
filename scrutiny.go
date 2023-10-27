@@ -17,6 +17,10 @@ func passesScrutinyFilters(msg *tgbotapi.Message) bool {
 		return false
 	}
 
+	if msg.Story != nil {
+		return false
+	}
+
 	return true
 }
 
