@@ -128,6 +128,9 @@ func removeMessageAndMockSender(bot *tgbotapi.BotAPI, message *tgbotapi.Message)
 }
 
 func banChannelOfForwardedMessage(ctx helpers.ResponseContext) {
+	if ctx.Message.ForwardFromChat == nil {
+		return
+	}
 	channelRecord := db.Channel{Id: ctx.Message.ForwardFromChat.ID, Title: ctx.Message.ForwardFromChat.Title}
 	db.BanChannel(channelRecord)
 	removeMessagesFromNewlyBannedChannel(ctx.Bot, channelRecord)
