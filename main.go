@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/utkinn/telegram-news-in-group-remover/filters"
 	"log"
 	"os"
 	"time"
@@ -108,17 +109,12 @@ func handleMessageToGroup(ctx helpers.ResponseContext) {
 	// Get ready to remove the entire album
 	offendingMediaGroupId = ctx.Message.MediaGroupID
 
-	if !passesScrutinyFilters(ctx.Message) {
-		removeMessageAndMockSender(ctx.Bot, ctx.Message)
-	}
-
-	if ctx.Message.ForwardFromChat == nil {
-		return
-	}
-	if db.IsChannelIdBanned(ctx.Message.ForwardFromChat.ID) {
+	if !filters.IsMessageAllowed(ctx.Message) {
 		removeMessageAndMockSender(ctx.Bot, ctx.Message)
 	} else {
-		forwardMemory = append(forwardMemory, newForwardMemoryItem(ctx.Message))
+		if ctx.Message.ForwardFromChat != nil {
+			forwardMemory = append(forwardMemory, newForwardMemoryItem(ctx.Message))
+		}
 	}
 }
 

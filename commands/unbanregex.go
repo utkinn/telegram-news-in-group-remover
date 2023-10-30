@@ -13,5 +13,5 @@ var unbanRegexCommand = newCommand("unbanregex", "Пристальный при�
 	}
 
 	db.UnbanRegex(regex)
-	ctx.SendSilentMarkdownFmt("Теперь это регулярное выражение не под запретом.", regex)
+	ctx.SendSilentMarkdownFmt("Теперь это регулярное выражение не под запретом.")
 })
