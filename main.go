@@ -22,6 +22,8 @@ func main() {
 		panic(err)
 	}
 
+	filters.InitFilters(bot)
+
 	notifyRestart(bot)
 
 	setUpCommandList(bot)
@@ -105,18 +107,16 @@ func handleMessageToGroup(ctx helpers.ResponseContext) {
 	// Get ready to remove the entire album
 	offendingMediaGroupId = ctx.Message.MediaGroupID
 
-	if !filters.IsMessageAllowed(ctx.Message) {
-		removeMessageAndMockSender(ctx.Bot, ctx.Message)
+	if allowed, shouldSuppressMock := filters.IsMessageAllowed(ctx.Message); !allowed {
+		removeMessage(ctx.Bot, ctx.Message)
+		if !shouldSuppressMock {
+			mockSender(ctx.Bot, ctx.Message.Chat.ID, ctx.Message.From)
+		}
 	} else {
 		if ctx.Message.ForwardFromChat != nil {
 			forwardMemory = append(forwardMemory, newForwardMemoryItem(ctx.Message))
 		}
 	}
-}
-
-func removeMessageAndMockSender(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-	removeMessage(bot, message)
-	mockSender(bot, message.Chat.ID, message.From)
 }
 
 func banChannelOfForwardedMessage(ctx helpers.ResponseContext) {

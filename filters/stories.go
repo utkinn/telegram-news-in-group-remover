@@ -13,3 +13,7 @@ func (s *storiesFilter) IsMessageAllowed(message *tgbotapi.Message) bool {
 func (s *storiesFilter) ScrutinyModeOnly() bool {
 	return true
 }
+
+func (s *storiesFilter) ShouldSuppressMock() bool {
+	return false
+}

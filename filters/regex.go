@@ -35,3 +35,7 @@ func (f *regexFilter) IsMessageAllowed(message *tgbotapi.Message) bool {
 func (f *regexFilter) ScrutinyModeOnly() bool {
 	return true
 }
+
+func (f *regexFilter) ShouldSuppressMock() bool {
+	return false
+}

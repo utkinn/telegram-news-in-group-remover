@@ -17,3 +17,7 @@ func (f *channelFilter) IsMessageAllowed(message *tgbotapi.Message) bool {
 func (f *channelFilter) ScrutinyModeOnly() bool {
 	return false
 }
+
+func (f *channelFilter) ShouldSuppressMock() bool {
+	return false
+}
