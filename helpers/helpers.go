@@ -30,7 +30,7 @@ func (ctx ResponseContext) SendSilentFmt(format string, args ...any) *tgbotapi.M
 
 func (ctx ResponseContext) SendSilentMarkdownFmt(format string, args ...any) *tgbotapi.Message {
 	msg := tgbotapi.NewMessage(ctx.Message.Chat.ID, fmt.Sprintf(format, args...))
-	msg.ParseMode = "markdown"
+	msg.ParseMode = tgbotapi.ModeMarkdown
 	msg.DisableNotification = true
 	return Send(ctx.Bot, msg)
 }
