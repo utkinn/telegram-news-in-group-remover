@@ -1,6 +1,9 @@
 package filters
 
-import tgbotapi "github.com/utkinn/telegram-bot-api/v5"
+import (
+	tgbotapi "github.com/utkinn/telegram-bot-api/v5"
+	"github.com/utkinn/telegram-news-in-group-remover/db"
+)
 
 type filter interface {
 	IsMessageAllowed(message *tgbotapi.Message) bool
@@ -20,7 +23,11 @@ func InitFilters(bot *tgbotapi.BotAPI) {
 }
 
 func IsMessageAllowed(message *tgbotapi.Message) (allowed, suppressMock bool) {
+	senderIsUnderScrutiny := db.IsUnderScrutiny(message.From.UserName)
 	for _, f := range filters {
+		if f.ScrutinyModeOnly() && !senderIsUnderScrutiny {
+			continue
+		}
 		if !f.IsMessageAllowed(message) {
 			return false, f.ShouldSuppressMock()
 		}
