@@ -38,6 +38,10 @@ func main() {
 }
 
 func notifyRestart(bot *tgbotapi.BotAPI) {
+	if _, skipSet := os.LookupEnv("SKIP_RESTART_NOTIFICATION"); skipSet {
+		return
+	}
+
 	superAdminChatId := db.GetSuperAdminChatId()
 	if superAdminChatId == db.SuperAdminChatIdNotSet {
 		return
