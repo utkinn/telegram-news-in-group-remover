@@ -45,6 +45,5 @@ func sendMockTextMessage(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tg
 		mockTextMessageRequest.Text = fmt.Sprintf("%v, вспышка _*сверху*_ 💥🔝 !", senderFunnyName)
 		mockTextMessageRequest.ParseMode = tgbotapi.ModeMarkdown
 	}
-	mockTextMessageRequest.DisableNotification = true
 	return helpers.Send(bot, mockTextMessageRequest)
 }
