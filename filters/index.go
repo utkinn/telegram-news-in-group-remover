@@ -19,6 +19,7 @@ func InitFilters(bot *tgbotapi.BotAPI) {
 		&regexFilter{},
 		&storiesFilter{},
 		&muteFilter{bot: bot},
+		&screenshotFilter{bot: bot},
 	}
 }
 

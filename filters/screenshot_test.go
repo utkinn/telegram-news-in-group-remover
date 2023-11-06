@@ -1,4 +1,4 @@
-package main
+package filters
 
 import (
 	"fmt"
@@ -15,8 +15,9 @@ func TestIsScreenshotWithGoogleImageSearch(t *testing.T) {
 	testScreenshotRecognition(t, "images", true)
 }
 
-func TestIsNotScreenshotRandomPhoto(t *testing.T) {
+func TestIsNotScreenshotRandomPhotos(t *testing.T) {
 	testScreenshotRecognition(t, "projector", false)
+	testScreenshotRecognition(t, "bald-dude", true)
 }
 
 func testScreenshotRecognition(t *testing.T, screenshotName string, expectedResult bool) {
