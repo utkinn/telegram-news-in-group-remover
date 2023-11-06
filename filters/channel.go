@@ -26,6 +26,6 @@ func (f *channelFilter) Description() Description {
 	return Description{
 		ID:   "channels",
 		Name: "Пересылки из забаненных каналов",
-		Desc: "Блокирует все пересланные сообщения из заблокированных каналов.",
+		Desc: "Блокирует все пересланные сообщения из заблокированных каналов (/list).",
 	}
 }
