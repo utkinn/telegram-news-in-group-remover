@@ -12,6 +12,10 @@ type database[T any] struct {
 }
 
 func (db *database[T]) load() {
+	if db.data != nil {
+		log.Printf("Warning: unnecessary loading of already loaded DB %v. Check init() functions in db source dir.\n", db.filename)
+	}
+
 	var err error
 	content, err := os.ReadFile(db.filename)
 	if err != nil {

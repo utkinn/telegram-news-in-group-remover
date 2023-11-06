@@ -9,7 +9,7 @@ var bannedRegexesDb = database[string]{
 }
 
 func init() {
-	bannedChannelsDb.load()
+	bannedRegexesDb.load()
 }
 
 func BanRegex(regex string) error {
