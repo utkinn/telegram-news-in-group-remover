@@ -10,6 +10,10 @@ var stickersDb = database[string]{
 	filename: "stickers.json",
 }
 
+func init() {
+	stickersDb.load()
+}
+
 func GetRandomMockStickerFileId() tgbotapi.FileID {
 	return tgbotapi.FileID(stickersDb.data[rand.Intn(len(stickersDb.data))])
 }

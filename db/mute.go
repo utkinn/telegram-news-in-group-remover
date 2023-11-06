@@ -13,6 +13,10 @@ type mute struct {
 
 var muteDb = database[mute]{filename: "mute.json"}
 
+func init() {
+	muteDb.load()
+}
+
 func MuteUser(userName string) {
 	muteDb.add(mute{
 		UserName: userName,

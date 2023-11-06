@@ -22,7 +22,9 @@ func TestGetNameForUserWorksWithReplacement(t *testing.T) {
 	]	
 	`
 	tempJsonFileName := path.Join(t.TempDir(), "name-replacements.json")
-	os.WriteFile(tempJsonFileName, []byte(json), 0444)
+	if err := os.WriteFile(tempJsonFileName, []byte(json), 0444); err != nil {
+		t.Fatalf("Failed to write to file: %v", err)
+	}
 	nameReplacementsDb.filename = tempJsonFileName
 	nameReplacementsDb.load()
 

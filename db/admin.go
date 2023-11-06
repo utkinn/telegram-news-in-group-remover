@@ -4,6 +4,10 @@ var adminsDb = database[string]{
 	filename: "admins.json",
 }
 
+func init() {
+	adminsDb.load()
+}
+
 func IsAdmin(nick string) bool {
 	for _, n := range adminsDb.data {
 		if n == nick {

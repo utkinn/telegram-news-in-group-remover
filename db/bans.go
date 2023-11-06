@@ -9,6 +9,10 @@ var bannedChannelsDb = database[Channel]{
 	filename: "banned-channels.json",
 }
 
+func init() {
+	bannedChannelsDb.load()
+}
+
 func GetBannedChannels() []Channel {
 	return bannedChannelsDb.data
 }

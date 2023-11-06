@@ -10,6 +10,10 @@ var removalsDb = database[removal]{
 	filename: "removals.json",
 }
 
+func init() {
+	removalsDb.load()
+}
+
 func RecordMessageRemoval(message *tgbotapi.Message) {
 	removalsDb.add(removal{Message: *message})
 }
