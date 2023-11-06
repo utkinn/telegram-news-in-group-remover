@@ -65,6 +65,7 @@ func (db *database[T]) addOrReplace(item T, equal func(a, b T) bool) {
 	for i, x := range db.data {
 		if equal(x, item) {
 			db.data[i] = item
+			db.write()
 			return
 		}
 	}
