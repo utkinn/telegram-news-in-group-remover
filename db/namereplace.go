@@ -10,10 +10,6 @@ var nameReplacementsDb = database[nameReplacement]{
 	filename: "name-replacements.json",
 }
 
-func init() {
-	nameReplacementsDb.load()
-}
-
 func GetNameForUser(user *tgbotapi.User) string {
 	for _, repl := range nameReplacementsDb.data {
 		if repl.Username == user.UserName {

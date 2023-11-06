@@ -7,10 +7,6 @@ type announcementSubscription struct {
 
 var announcementsDb = database[announcementSubscription]{filename: "announcement-subscriptions.json"}
 
-func init() {
-	announcementsDb.load()
-}
-
 func GetChatIdsOfAdminsSubscribedToAnnouncements() []int64 {
 	ids := make([]int64, len(announcementsDb.data))
 	for i, sub := range announcementsDb.data {

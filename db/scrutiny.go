@@ -6,10 +6,6 @@ var scrutinyDb = database[string]{
 	filename: "scrutiny.json",
 }
 
-func init() {
-	scrutinyDb.load()
-}
-
 func AddToScrutiny(nick string) {
 	scrutinyDb.addNoDupe(normalizeNick(nick), func(a, b string) bool { return a == b })
 }
