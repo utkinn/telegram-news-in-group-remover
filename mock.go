@@ -42,7 +42,7 @@ func sendMockTextMessage(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tg
 		mockTextMessageRequest.ParseMode = tgbotapi.ModeMarkdown
 	}
 	if rand.Intn(100) <= 2 {
-		mockTextMessageRequest.Text = fmt.Sprintf("%v, вспышка _*сверху*_ 💥🔝 !", senderFunnyName)
+		mockTextMessageRequest.Text = fmt.Sprintf("%v, вспышка _сверху_ 💥🔝 !", senderFunnyName)
 		mockTextMessageRequest.ParseMode = tgbotapi.ModeMarkdown
 	}
 	return helpers.Send(bot, mockTextMessageRequest)
