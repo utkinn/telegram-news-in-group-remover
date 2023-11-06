@@ -20,7 +20,7 @@ func main() {
 		panic(err)
 	}
 
-	filters.InitFilters(bot)
+	filters.Init(bot)
 
 	notifyRestart(bot)
 

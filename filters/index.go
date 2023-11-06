@@ -13,7 +13,7 @@ type filter interface {
 
 var filters []filter
 
-func InitFilters(bot *tgbotapi.BotAPI) {
+func Init(bot *tgbotapi.BotAPI) {
 	filters = []filter{
 		&channelFilter{},
 		&regexFilter{},
