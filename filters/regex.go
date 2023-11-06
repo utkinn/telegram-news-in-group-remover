@@ -39,3 +39,11 @@ func (f *regexFilter) ScrutinyModeOnly() bool {
 func (f *regexFilter) ShouldSuppressMock() bool {
 	return false
 }
+
+func (f *regexFilter) Description() Description {
+	return Description{
+		ID:   "regex",
+		Name: "Регулярные выражения",
+		Desc: "Блокирует сообщения, текст которых совпадает с как минимум одным регулярным выражением из запретного списка.",
+	}
+}

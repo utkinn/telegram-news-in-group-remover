@@ -9,7 +9,15 @@ type Filter interface {
 	IsMessageAllowed(message *tgbotapi.Message) bool
 	ScrutinyModeOnly() bool
 	ShouldSuppressMock() bool
+	Description() Description
 }
+
+type Description struct {
+	ID, Name, Desc string
+}
+
+// Use this notice in Filter.Description to indicate that a certain filter is unstable.
+const unstableNotice = "\n*Этот фильтр экспериментален и может работать нестабильно, с большим количеством ложных срабатываний. Не забывайте про команду `/filteroff`.*"
 
 var filters []Filter
 

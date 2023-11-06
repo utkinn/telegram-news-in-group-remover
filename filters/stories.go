@@ -17,3 +17,11 @@ func (s *storiesFilter) ScrutinyModeOnly() bool {
 func (s *storiesFilter) ShouldSuppressMock() bool {
 	return false
 }
+
+func (s *storiesFilter) Description() Description {
+	return Description{
+		ID:   "stories",
+		Name: "Истории",
+		Desc: "Запрещает пересылку всех историй. Фильтрация историй по каналам невозможна из-за текущих ограничений API Telegram.",
+	}
+}

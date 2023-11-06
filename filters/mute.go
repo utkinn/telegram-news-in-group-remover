@@ -34,3 +34,11 @@ func (m *muteFilter) ScrutinyModeOnly() bool {
 func (m *muteFilter) ShouldSuppressMock() bool {
 	return true
 }
+
+func (m *muteFilter) Description() Description {
+	return Description{
+		ID:   "mute",
+		Name: "STFU",
+		Desc: "Удаляет все сообщения от пользователей, которые были отправлены в мут командой /stfu.",
+	}
+}

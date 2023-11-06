@@ -26,6 +26,22 @@ func (s *screenshotFilter) IsMessageAllowed(message *tgbotapi.Message) bool {
 	return !isScreenshot(*img)
 }
 
+func (s *screenshotFilter) ScrutinyModeOnly() bool {
+	return true
+}
+
+func (s *screenshotFilter) ShouldSuppressMock() bool {
+	return false
+}
+
+func (s *screenshotFilter) Description() Description {
+	return Description{
+		ID:   "screenshots",
+		Name: "Скриншоты",
+		Desc: "Удаляет скриншоты. Пытается отсеять скриншоты новостей и удалять только их." + unstableNotice,
+	}
+}
+
 func (s *screenshotFilter) downloadScreenshot(message *tgbotapi.Message) (*image.Image, error) {
 	largestPhotoSize := message.Photo[0]
 	screenshotFile, err := s.bot.GetFile(tgbotapi.FileConfig{FileID: largestPhotoSize.FileID})
@@ -45,14 +61,6 @@ func (s *screenshotFilter) downloadScreenshot(message *tgbotapi.Message) (*image
 	}
 
 	return &img, nil
-}
-
-func (s *screenshotFilter) ScrutinyModeOnly() bool {
-	return true
-}
-
-func (s *screenshotFilter) ShouldSuppressMock() bool {
-	return false
 }
 
 func isScreenshot(img image.Image) bool {
