@@ -16,7 +16,7 @@ func AddToScrutiny(nick string) {
 
 func RemoveFromScrutiny(nick string) bool {
 	nick = normalizeNick(nick)
-	return scrutinyDb.removeNotMatching(func(n string) bool { return n != nick })
+	return scrutinyDb.filterInPlace(func(n string) bool { return n != nick })
 }
 
 func IsUnderScrutiny(nick string) bool {

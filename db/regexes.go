@@ -25,5 +25,5 @@ func GetRegexes() []string {
 }
 
 func UnbanRegex(regex string) {
-	bannedRegexesDb.removeNotMatching(func(r string) bool { return regex != r })
+	bannedRegexesDb.filterInPlace(func(r string) bool { return regex != r })
 }

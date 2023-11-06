@@ -11,6 +11,8 @@ type database[T any] struct {
 	data     []T
 }
 
+// load reads the JSON file in the current working directory named database.filename and puts the parsed contents to database.data.
+// If the file does not exist, the database is assumed to be empty.
 func (db *database[T]) load() {
 	if db.data != nil {
 		log.Printf("Warning: unnecessary loading of already loaded DB %v. Check init() functions in db source dir.\n", db.filename)
@@ -30,6 +32,7 @@ func (db *database[T]) load() {
 	}
 }
 
+// write dumps database.data to a JSON file in the current working directory. The file name is specified by database.filename.
 func (db *database[T]) write() {
 	content, err := json.Marshal(db.data)
 	if err != nil {
@@ -41,6 +44,7 @@ func (db *database[T]) write() {
 	}
 }
 
+// add appends the item to the end of the item list.
 func (db *database[T]) add(item T) {
 	db.data = append(db.data, item)
 	db.write()
@@ -48,7 +52,7 @@ func (db *database[T]) add(item T) {
 
 // addNoDupe acts like add, but does not insert the item if there is at least one item in the database that causes
 // the equal callback applied to all database items to return true at least once.
-func (db *database[T]) addNoDupe(item T, equal func(a, b T) bool) {
+func (db *database[T]) addNoDupe(item T, equal func(dbItem, newItem T) bool) {
 	for _, x := range db.data {
 		if equal(x, item) {
 			return
@@ -72,7 +76,8 @@ func (db *database[T]) addOrReplace(item T, equal func(a, b T) bool) {
 	db.add(item)
 }
 
-func (db *database[T]) removeNotMatching(cb func(item T) bool) bool {
+// filterInPlace removes items from the database which, when passed to cb, cause it to return false.
+func (db *database[T]) filterInPlace(cb func(item T) bool) bool {
 	removedSomething := false
 	newData := make([]T, 0, len(db.data))
 	for _, item := range db.data {
@@ -88,6 +93,7 @@ func (db *database[T]) removeNotMatching(cb func(item T) bool) bool {
 	return removedSomething
 }
 
+// any reports whether at least one item in the database matches the predicate cb.
 func (db *database[T]) any(cb func(item T) bool) bool {
 	for _, item := range db.data {
 		if cb(item) {
@@ -97,6 +103,7 @@ func (db *database[T]) any(cb func(item T) bool) bool {
 	return false
 }
 
+// first returns the first item that matches the predicate.
 func (db *database[T]) first(predicate func(item T) bool) (T, bool) {
 	for _, item := range db.data {
 		if predicate(item) {

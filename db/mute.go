@@ -26,11 +26,11 @@ func MuteUser(userName string) {
 }
 
 func UnmuteUser(userName string) {
-	muteDb.removeNotMatching(func(item mute) bool { return item.UserName != userName })
+	muteDb.filterInPlace(func(item mute) bool { return item.UserName != userName })
 }
 
 func IsUserMuted(userName string) (muted, announced bool) {
-	muteDb.removeNotMatching(func(item mute) bool { return !item.EndAt.Before(time.Now()) })
+	muteDb.filterInPlace(func(item mute) bool { return !item.EndAt.Before(time.Now()) })
 	for _, item := range muteDb.data {
 		if item.UserName == userName {
 			return true, item.IsAnnounced

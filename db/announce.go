@@ -27,5 +27,5 @@ func SubscribeToAnnouncements(chatId int64, userName string) {
 }
 
 func UnsubscribeFromAnnouncements(chatId int64) {
-	announcementsDb.removeNotMatching(func(ann announcementSubscription) bool { return ann.ChatId != chatId })
+	announcementsDb.filterInPlace(func(ann announcementSubscription) bool { return ann.ChatId != chatId })
 }
