@@ -8,6 +8,10 @@ var bannedRegexesDb = database[string]{
 	filename: "regexes.json",
 }
 
+func init() {
+	bannedChannelsDb.load()
+}
+
 func BanRegex(regex string) error {
 	_, err := regexp2.Compile(regex, regexp2.None)
 	if err == nil {

@@ -6,18 +6,6 @@ import (
 	"os"
 )
 
-func init() {
-	adminsDb.load()
-	bannedChannelsDb.load()
-	stickersDb.load()
-	nameReplacementsDb.load()
-	announcementsDb.load()
-	scrutinyDb.load()
-	removalsDb.load()
-	bannedRegexesDb.load()
-	muteDb.load()
-}
-
 type database[T any] struct {
 	filename string
 	data     []T
