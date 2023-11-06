@@ -79,3 +79,12 @@ func (db *database[T]) any(cb func(item T) bool) bool {
 	}
 	return false
 }
+
+func (db *database[T]) first(predicate func(item T) bool) (T, bool) {
+	for _, item := range db.data {
+		if predicate(item) {
+			return item, true
+		}
+	}
+	return *new(T), false
+}
