@@ -5,22 +5,26 @@ import (
 	"github.com/utkinn/telegram-news-in-group-remover/db"
 )
 
-type filter interface {
+type Filter interface {
 	IsMessageAllowed(message *tgbotapi.Message) bool
 	ScrutinyModeOnly() bool
 	ShouldSuppressMock() bool
 }
 
-var filters []filter
+var filters []Filter
 
 func Init(bot *tgbotapi.BotAPI) {
-	filters = []filter{
+	filters = []Filter{
 		&channelFilter{},
 		&regexFilter{},
 		&storiesFilter{},
 		&muteFilter{bot: bot},
 		&screenshotFilter{bot: bot},
 	}
+}
+
+func List() []Filter {
+	return filters
 }
 
 func IsMessageAllowed(message *tgbotapi.Message) (allowed, suppressMock bool) {
