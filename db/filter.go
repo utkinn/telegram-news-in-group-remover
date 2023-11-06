@@ -1,7 +1,7 @@
 package db
 
 type filterToggle struct {
-	Name    string
+	Id      string
 	Enabled bool
 }
 
@@ -11,8 +11,8 @@ func init() {
 	filterToggleDb.load()
 }
 
-func IsFilterEnabled(name string) bool {
-	toggle, found := filterToggleDb.first(func(item filterToggle) bool { return item.Name == name })
+func IsFilterEnabled(id string) bool {
+	toggle, found := filterToggleDb.first(func(item filterToggle) bool { return item.Id == id })
 	if !found {
 		// To be compatible with the previous version that had all filters enabled, return true if no toggle is found
 		return true
@@ -20,9 +20,9 @@ func IsFilterEnabled(name string) bool {
 	return toggle.Enabled
 }
 
-func SetFilterEnabled(name string, enabled bool) {
+func SetFilterEnabled(id string, enabled bool) {
 	filterToggleDb.addOrReplace(
-		filterToggle{Name: name, Enabled: enabled},
-		func(a, b filterToggle) bool { return a.Name == b.Name },
+		filterToggle{Id: id, Enabled: enabled},
+		func(a, b filterToggle) bool { return a.Id == b.Id },
 	)
 }
