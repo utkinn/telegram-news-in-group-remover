@@ -15,8 +15,6 @@ import (
 var mockCleanupQueue = make(chan mock, 100)
 
 func main() {
-	db.Load()
-
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
 	if err != nil {
 		panic(err)

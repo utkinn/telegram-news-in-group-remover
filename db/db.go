@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func Load() {
+func init() {
 	adminsDb.load()
 	bannedChannelsDb.load()
 	stickersDb.load()
