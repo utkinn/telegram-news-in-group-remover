@@ -49,6 +49,7 @@ func notifyRestart(bot *tgbotapi.BotAPI) {
 
 	msg := tgbotapi.NewMessage(superAdminChatId, "_Бот пезерапущен_")
 	msg.ParseMode = tgbotapi.ModeMarkdown
+	msg.DisableNotification = true
 	helpers.Send(bot, msg)
 }
 
