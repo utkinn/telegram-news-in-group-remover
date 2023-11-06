@@ -17,7 +17,7 @@ type Description struct {
 }
 
 // Use this notice in Filter.Description to indicate that a certain filter is unstable.
-const unstableNotice = "\n*Этот фильтр экспериментален и может работать нестабильно, с большим количеством ложных срабатываний. Не забывайте про команду `/filteroff`.*"
+const unstableNotice = "\n      _Этот фильтр экспериментален и может работать нестабильно, с большим количеством ложных срабатываний. Не забывайте про команду /filteroff._"
 
 var filters []Filter
 
@@ -35,10 +35,19 @@ func List() []Filter {
 	return filters
 }
 
+func ValidID(id string) bool {
+	for _, f := range filters {
+		if f.Description().ID == id {
+			return true
+		}
+	}
+	return false
+}
+
 func IsMessageAllowed(message *tgbotapi.Message) (allowed, suppressMock bool) {
 	senderIsUnderScrutiny := db.IsUnderScrutiny(message.From.UserName)
 	for _, f := range filters {
-		if f.ScrutinyModeOnly() && !senderIsUnderScrutiny {
+		if !db.IsFilterEnabled(f.Description().ID) || f.ScrutinyModeOnly() && !senderIsUnderScrutiny {
 			continue
 		}
 		if !f.IsMessageAllowed(message) {

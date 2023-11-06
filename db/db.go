@@ -46,9 +46,25 @@ func (db *database[T]) add(item T) {
 	db.write()
 }
 
+// addNoDupe acts like add, but does not insert the item if there is at least one item in the database that causes
+// the equal callback applied to all database items to return true at least once.
 func (db *database[T]) addNoDupe(item T, equal func(a, b T) bool) {
 	for _, x := range db.data {
 		if equal(x, item) {
+			return
+		}
+	}
+	db.add(item)
+}
+
+// addOrReplace acts like add, but if the equal callback, being applied to all items in the database, returns true on
+// some item, this item gets replace by the supplied one.
+//
+// All items that may cause the equal callback to return true after the first one are ignored.
+func (db *database[T]) addOrReplace(item T, equal func(a, b T) bool) {
+	for i, x := range db.data {
+		if equal(x, item) {
+			db.data[i] = item
 			return
 		}
 	}

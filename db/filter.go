@@ -21,7 +21,7 @@ func IsFilterEnabled(name string) bool {
 }
 
 func SetFilterEnabled(name string, enabled bool) {
-	filterToggleDb.addNoDupe(
+	filterToggleDb.addOrReplace(
 		filterToggle{Name: name, Enabled: enabled},
 		func(a, b filterToggle) bool { return a.Name == b.Name },
 	)

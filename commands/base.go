@@ -65,6 +65,9 @@ var commands = []command{
 	unbanRegexCommand,
 	muteCommand,
 	unmuteCommand,
+	filtersCommand,
+	filterOnCommand,
+	filterOffCommand,
 }
 
 func GetCommandList() []tgbotapi.BotCommand {
