@@ -18,7 +18,7 @@ var filterOffCommand = newCommand("filteroff", "<id> — Выключает фи
 func filterOnOffCallback(ctx helpers.ResponseContext, newState bool) {
 	id := ctx.Message.CommandArguments()
 	if len(id) == 0 || strings.Contains(id, " ") {
-		ctx.SendSilentMarkdownFmt("_Нужен один аргумент — ID фильтра._")
+		ctx.SendSilentMarkdownFmt("_Нужен один аргумент — ID фильтра. Он указывается в квадратных скобках в выводе /filters._")
 		return
 	}
 
