@@ -22,3 +22,7 @@ func IsAdmin(nick string) bool {
 func IsSuperAdmin(nick string) bool {
 	return adminsDb.data[0] == nick
 }
+
+func SetAdminsForTesting() {
+	adminsDb.data = []string{"SuperAdmin", "Admin"}
+}

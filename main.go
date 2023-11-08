@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
+
 	_ "github.com/joho/godotenv/autoload"
 	tgbotapi "github.com/utkinn/telegram-bot-api/v5"
 	"github.com/utkinn/telegram-news-in-group-remover/commands"
 	"github.com/utkinn/telegram-news-in-group-remover/db"
 	"github.com/utkinn/telegram-news-in-group-remover/filters"
 	"github.com/utkinn/telegram-news-in-group-remover/helpers"
-	"log"
-	"os"
 )
 
 var mockCleanupQueue = make(chan mock, 100)
@@ -72,20 +73,22 @@ func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	ctx := helpers.ResponseContext{Message: message, Bot: bot}
 
 	if message.Chat.Type == "private" {
-		handleMessageToBot(ctx)
+		handleMessageToBot(ctx, newTelegramTextResponder(bot, message.Chat.ID))
 		return
 	}
 
 	handleMessageToGroup(ctx)
 }
 
-func handleMessageToBot(ctx helpers.ResponseContext) {
+const goAway = "Исчезни, я тебя не знаю."
+
+func handleMessageToBot(ctx helpers.ResponseContext, resp textResponder) {
 	if ctx.Message.Sticker != nil {
 		fmt.Println(ctx.Message.Sticker.FileID)
 	}
 
 	if !db.IsAdmin(ctx.Message.From.UserName) {
-		ctx.SendSilentMarkdownFmt("Исчезни, я тебя не знаю.")
+		resp.RespondTextf(tgbotapi.ModeMarkdown, true, goAway)
 		return
 	}
 
