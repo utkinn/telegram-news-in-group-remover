@@ -14,7 +14,7 @@ import (
 var lastMockAt time.Time
 
 func mockSender(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tgbotapi.User) {
-	if time.Now().Sub(lastMockAt).Minutes() < 1 {
+	if time.Since(lastMockAt).Minutes() < 1 {
 		return
 	}
 	lastMockAt = time.Now()
