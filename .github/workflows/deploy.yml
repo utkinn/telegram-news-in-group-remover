@@ -24,6 +24,12 @@ jobs:
     - name: Build
       run: go build -v .
 
+    - name: Run go vet
+      run: go vet -v ./...
+
+    - name: Run go test
+      run: go test -v ./...
+
     - name: Run Ansible playbook
       uses: dawidd6/action-ansible-playbook@v2.6.1
       with:
