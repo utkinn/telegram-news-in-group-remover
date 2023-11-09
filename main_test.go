@@ -33,9 +33,6 @@ func TestRejectsUnknownUsersInBotChat(t *testing.T) {
 		newResponseContextStub("Chiga", "/clear"),
 		&responder,
 		func(ctx helpers.ResponseContext) { t.Fatal("commands.Execute was not expected to be called") },
-		func(ctx helpers.ResponseContext) {
-			t.Fatal("banChannelOfForwardedMessageCb was not expected to be called")
-		},
 	)
 
 	if len(responder) != 1 {
@@ -54,9 +51,6 @@ func TestSkipMessagesToBotWithoutText(t *testing.T) {
 		newResponseContextStub("Admin", ""),
 		&responder,
 		func(ctx helpers.ResponseContext) { t.Fatal("commands.Execute was not expected to be called") },
-		func(ctx helpers.ResponseContext) {
-			t.Fatal("banChannelOfForwardedMessageCb was not expected to be called")
-		},
 	)
 
 	if len(responder) != 0 {
@@ -77,9 +71,6 @@ func TestExecuteCommandInMessageToBot(t *testing.T) {
 		func(ctx helpers.ResponseContext) {
 			executeCommandCalled = true
 		},
-		func(ctx helpers.ResponseContext) {
-			t.Fatal("banChannelOfForwardedMessageCb was not expected to be called")
-		},
 	)
 
 	if !executeCommandCalled {
@@ -90,7 +81,6 @@ func TestExecuteCommandInMessageToBot(t *testing.T) {
 func TestBanChannelOfForwardedMessage(t *testing.T) {
 	db.SetAdminsForTesting()
 
-	banChannelOfForwardedMessageCbCalled := false
 	var responder testTextResponder
 	responseContext := newResponseContextStub("Admin", "Crappy news!!!")
 	responseContext.Message.ForwardFromChat = &tgbotapi.Chat{ID: 666, Title: "Crappy channel"}
@@ -100,13 +90,17 @@ func TestBanChannelOfForwardedMessage(t *testing.T) {
 		func(ctx helpers.ResponseContext) {
 			t.Fatal("commands.Execute was not expected to be called")
 		},
-		func(ctx helpers.ResponseContext) {
-			banChannelOfForwardedMessageCbCalled = true
-		},
 	)
 
-	if !banChannelOfForwardedMessageCbCalled {
-		t.Fatal("banChannelOfForwardedMessageCb was not called")
+	if !db.IsChannelIdBanned(666) {
+		t.Fatal("Channel was not banned")
+	}
+	if len(responder) != 1 {
+		t.Fatalf("Want 1 response, got %v", len(responder))
+	}
+	response := responder[0].message
+	if response != channelBanResponseText {
+		t.Fatalf("Want response %#v, got %#v", channelBanResponseText, response)
 	}
 }
 
@@ -119,9 +113,6 @@ func TestSkipNonForwardedTextMessagesToBot(t *testing.T) {
 		&responder,
 		func(ctx helpers.ResponseContext) {
 			t.Fatal("commands.Execute was not expected to be called")
-		},
-		func(ctx helpers.ResponseContext) {
-			t.Fatal("banChannelOfForwardedMessageCb was not expected to be called")
 		},
 	)
 }

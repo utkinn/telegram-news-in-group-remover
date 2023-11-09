@@ -73,7 +73,7 @@ func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	ctx := helpers.ResponseContext{Message: message, Bot: bot}
 
 	if message.Chat.Type == "private" {
-		handleMessageToBot(ctx, newTelegramTextResponder(bot, message.Chat.ID), commands.Execute, banChannelOfForwardedMessage)
+		handleMessageToBot(ctx, newTelegramTextResponder(bot, message.Chat.ID), commands.Execute)
 		return
 	}
 
@@ -82,7 +82,7 @@ func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 
 const goAway = "Исчезни, я тебя не знаю."
 
-func handleMessageToBot(ctx helpers.ResponseContext, resp textResponder, executeCommand, banChannelOfForwardedMessageCb func(ctx helpers.ResponseContext)) {
+func handleMessageToBot(ctx helpers.ResponseContext, resp textResponder, executeCommand func(ctx helpers.ResponseContext)) {
 	if ctx.Message.Sticker != nil {
 		fmt.Println(ctx.Message.Sticker.FileID)
 	}
@@ -99,9 +99,7 @@ func handleMessageToBot(ctx helpers.ResponseContext, resp textResponder, execute
 	if ctx.Message.IsCommand() {
 		executeCommand(ctx)
 	} else {
-		if ctx.Message.ForwardFromChat != nil {
-			banChannelOfForwardedMessageCb(ctx)
-		}
+		banChannelOfForwardedMessage(ctx, resp)
 	}
 }
 
@@ -127,14 +125,14 @@ func handleMessageToGroup(ctx helpers.ResponseContext) {
 	}
 }
 
-func banChannelOfForwardedMessage(ctx helpers.ResponseContext) {
+func banChannelOfForwardedMessage(ctx helpers.ResponseContext, resp textResponder) {
 	if ctx.Message.ForwardFromChat == nil {
 		return
 	}
 	channelRecord := db.Channel{Id: ctx.Message.ForwardFromChat.ID, Title: ctx.Message.ForwardFromChat.Title}
 	db.BanChannel(channelRecord)
 	removeMessagesFromNewlyBannedChannel(ctx.Bot, channelRecord)
-	sendBanResponse(ctx)
+	sendBanResponse(resp)
 }
 
 func removeMessagesFromNewlyBannedChannel(bot *tgbotapi.BotAPI, chanRec db.Channel) {
@@ -152,8 +150,10 @@ func removeMessagesFromNewlyBannedChannel(bot *tgbotapi.BotAPI, chanRec db.Chann
 	}
 }
 
-func sendBanResponse(ctx helpers.ResponseContext) {
-	ctx.SendSilentMarkdownFmt("Канал *%s* забанен.", ctx.Message.ForwardFromChat.Title)
+const channelBanResponseText = "Этот канал забанен."
+
+func sendBanResponse(resp textResponder) {
+	resp.RespondTextf("", true, channelBanResponseText)
 }
 
 func removeMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
