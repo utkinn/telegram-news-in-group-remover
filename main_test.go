@@ -30,8 +30,12 @@ func TestRejectsUnknownUsersInBotChat(t *testing.T) {
 
 	var responder testTextResponder
 	handleMessageToBot(
-		helpers.ResponseContext{Message: &tgbotapi.Message{From: &tgbotapi.User{UserName: "RandomDude"}}},
+		newResponseContextStub("Chiga", "/clear"),
 		&responder,
+		func(ctx helpers.ResponseContext) { t.Fatal("commands.Execute was not expected to be called") },
+		func(ctx helpers.ResponseContext) {
+			t.Fatal("banChannelOfForwardedMessageCb was not expected to be called")
+		},
 	)
 
 	if len(responder) != 1 {
@@ -47,15 +51,85 @@ func TestSkipMessagesToBotWithoutText(t *testing.T) {
 
 	var responder testTextResponder
 	handleMessageToBot(
-		helpers.ResponseContext{Message: &tgbotapi.Message{
-			From:    &tgbotapi.User{UserName: "Admin"},
-			Text:    "",
-			Caption: "",
-		}},
+		newResponseContextStub("Admin", ""),
 		&responder,
+		func(ctx helpers.ResponseContext) { t.Fatal("commands.Execute was not expected to be called") },
+		func(ctx helpers.ResponseContext) {
+			t.Fatal("banChannelOfForwardedMessageCb was not expected to be called")
+		},
 	)
 
 	if len(responder) != 0 {
 		t.Fatalf("Want 0 responses, got %v", len(responder))
 	}
+}
+
+func TestExecuteCommandInMessageToBot(t *testing.T) {
+	db.SetAdminsForTesting()
+
+	executeCommandCalled := false
+	var responder testTextResponder
+	responseContext := newResponseContextStub("Admin", "/start")
+	responseContext.Message.Entities = append(responseContext.Message.Entities, tgbotapi.MessageEntity{Offset: 0, Type: "bot_command"})
+	handleMessageToBot(
+		responseContext,
+		&responder,
+		func(ctx helpers.ResponseContext) {
+			executeCommandCalled = true
+		},
+		func(ctx helpers.ResponseContext) {
+			t.Fatal("banChannelOfForwardedMessageCb was not expected to be called")
+		},
+	)
+
+	if !executeCommandCalled {
+		t.Fatal("executeCommand was not called")
+	}
+}
+
+func TestBanChannelOfForwardedMessage(t *testing.T) {
+	db.SetAdminsForTesting()
+
+	banChannelOfForwardedMessageCbCalled := false
+	var responder testTextResponder
+	responseContext := newResponseContextStub("Admin", "Crappy news!!!")
+	responseContext.Message.ForwardFromChat = &tgbotapi.Chat{ID: 666, Title: "Crappy channel"}
+	handleMessageToBot(
+		responseContext,
+		&responder,
+		func(ctx helpers.ResponseContext) {
+			t.Fatal("commands.Execute was not expected to be called")
+		},
+		func(ctx helpers.ResponseContext) {
+			banChannelOfForwardedMessageCbCalled = true
+		},
+	)
+
+	if !banChannelOfForwardedMessageCbCalled {
+		t.Fatal("banChannelOfForwardedMessageCb was not called")
+	}
+}
+
+func TestSkipNonForwardedTextMessagesToBot(t *testing.T) {
+	db.SetAdminsForTesting()
+
+	var responder testTextResponder
+	handleMessageToBot(
+		newResponseContextStub("Admin", "text"),
+		&responder,
+		func(ctx helpers.ResponseContext) {
+			t.Fatal("commands.Execute was not expected to be called")
+		},
+		func(ctx helpers.ResponseContext) {
+			t.Fatal("banChannelOfForwardedMessageCb was not expected to be called")
+		},
+	)
+}
+
+func newResponseContextStub(senderUserName, text string) helpers.ResponseContext {
+	return helpers.ResponseContext{Message: &tgbotapi.Message{
+		From:    &tgbotapi.User{UserName: senderUserName},
+		Text:    text,
+		Caption: "",
+	}}
 }

@@ -73,7 +73,7 @@ func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	ctx := helpers.ResponseContext{Message: message, Bot: bot}
 
 	if message.Chat.Type == "private" {
-		handleMessageToBot(ctx, newTelegramTextResponder(bot, message.Chat.ID))
+		handleMessageToBot(ctx, newTelegramTextResponder(bot, message.Chat.ID), commands.Execute, banChannelOfForwardedMessage)
 		return
 	}
 
@@ -82,7 +82,7 @@ func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 
 const goAway = "Исчезни, я тебя не знаю."
 
-func handleMessageToBot(ctx helpers.ResponseContext, resp textResponder) {
+func handleMessageToBot(ctx helpers.ResponseContext, resp textResponder, executeCommand, banChannelOfForwardedMessageCb func(ctx helpers.ResponseContext)) {
 	if ctx.Message.Sticker != nil {
 		fmt.Println(ctx.Message.Sticker.FileID)
 	}
@@ -97,9 +97,11 @@ func handleMessageToBot(ctx helpers.ResponseContext, resp textResponder) {
 	}
 
 	if ctx.Message.IsCommand() {
-		commands.Execute(ctx)
+		executeCommand(ctx)
 	} else {
-		banChannelOfForwardedMessage(ctx)
+		if ctx.Message.ForwardFromChat != nil {
+			banChannelOfForwardedMessageCb(ctx)
+		}
 	}
 }
 
