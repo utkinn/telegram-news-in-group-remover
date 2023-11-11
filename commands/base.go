@@ -50,24 +50,10 @@ func newHiddenSuperAdminCommand(name string, callback commandCallback) command {
 	}
 }
 
-var commands = []command{
-	clearCommand,
-	listCommand,
-	startCommand,
-	announceCommand,
-	getUpdateNewsCommand,
-	noUpdateNewsCommand,
-	scrutinyCommand,
-	unscrutinyCommand,
-	restartNotificationCommand,
-	banRegexCommand,
-	listRegexCommand,
-	unbanRegexCommand,
-	muteCommand,
-	unmuteCommand,
-	filtersCommand,
-	filterOnCommand,
-	filterOffCommand,
+var commands []command
+
+func registerCommand(cmd command) {
+	commands = append(commands, cmd)
 }
 
 func GetCommandList() []tgbotapi.BotCommand {

@@ -5,6 +5,10 @@ import (
 	"github.com/utkinn/telegram-news-in-group-remover/helpers"
 )
 
-var restartNotificationCommand = newHiddenSuperAdminCommand("restartnotif", func(ctx helpers.ResponseContext) {
-	db.SetSuperAdminChatId(ctx.Message.Chat.ID)
-})
+func init() {
+	registerCommand(
+		newHiddenSuperAdminCommand("restartnotif", func(ctx helpers.ResponseContext) {
+			db.SetSuperAdminChatId(ctx.Message.Chat.ID)
+		}),
+	)
+}

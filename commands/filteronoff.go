@@ -1,19 +1,26 @@
 package commands
 
 import (
+	"strings"
+
 	"github.com/utkinn/telegram-news-in-group-remover/db"
 	"github.com/utkinn/telegram-news-in-group-remover/filters"
 	"github.com/utkinn/telegram-news-in-group-remover/helpers"
-	"strings"
 )
 
-var filterOnCommand = newCommand("filteron", "<id> — Включает фильтр с указанным ID.", func(ctx helpers.ResponseContext) {
-	filterOnOffCallback(ctx, true)
-})
+func init() {
+	registerCommand(
+		newCommand("filteron", "<id> — Включает фильтр с указанным ID.", func(ctx helpers.ResponseContext) {
+			filterOnOffCallback(ctx, true)
+		}),
+	)
 
-var filterOffCommand = newCommand("filteroff", "<id> — Выключает фильтр с указанным ID.", func(ctx helpers.ResponseContext) {
-	filterOnOffCallback(ctx, false)
-})
+	registerCommand(
+		newCommand("filteroff", "<id> — Выключает фильтр с указанным ID.", func(ctx helpers.ResponseContext) {
+			filterOnOffCallback(ctx, false)
+		}),
+	)
+}
 
 func filterOnOffCallback(ctx helpers.ResponseContext, newState bool) {
 	id := ctx.Message.CommandArguments()
