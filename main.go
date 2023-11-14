@@ -110,11 +110,10 @@ func handleMessageToGroup(ctx helpers.ResponseContext) {
 		removeMessage(ctx.Bot, ctx.Message)
 	}
 
-	// Get ready to remove the entire album
-	offendingMediaGroupId = ctx.Message.MediaGroupID
-
 	if allowed, shouldSuppressMock := filters.IsMessageAllowed(ctx.Message); !allowed {
 		removeMessage(ctx.Bot, ctx.Message)
+		// Get ready to remove the entire album
+		offendingMediaGroupId = ctx.Message.MediaGroupID
 		if !shouldSuppressMock {
 			mockSender(ctx.Bot, ctx.Message.Chat.ID, ctx.Message.From)
 		}
