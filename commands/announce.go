@@ -10,7 +10,7 @@ func init() {
 	registerCommand(
 		newSuperAdminCommand("announce", "Анонсировать обновление", func(ctx helpers.ResponseContext) {
 			lastMessageChatId := db.LastMessageChatId()
-			if lastMessageChatId == 0 {
+			if lastMessageChatId == db.LastGroupMessageChatIdNotSet {
 				ctx.SendSilentMarkdownFmt("Пока не могу. Пусть в чат что-нибудь кто-то напишет.")
 				return
 			}
