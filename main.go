@@ -106,6 +106,8 @@ func handleMessageToBot(ctx helpers.ResponseContext, resp textResponder, execute
 var offendingMediaGroupId string
 
 func handleMessageToGroup(ctx helpers.ResponseContext) {
+	db.SetLastMessageChatId(ctx.Message.Chat.ID)
+
 	if ctx.Message.MediaGroupID != "" && ctx.Message.MediaGroupID == offendingMediaGroupId {
 		removeMessage(ctx.Bot, ctx.Message)
 	}
