@@ -1,9 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	"time"
 
 	_ "github.com/joho/godotenv/autoload"
 	tgbotapi "github.com/utkinn/telegram-bot-api/v5"
@@ -16,10 +19,7 @@ import (
 var mockCleanupQueue = make(chan mock, 100)
 
 func main() {
-	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
-	if err != nil {
-		panic(err)
-	}
+	bot := createBotWithNetworkRetry()
 
 	filters.Init(bot)
 
@@ -36,6 +36,21 @@ func main() {
 	for update := range updates {
 		handleUpdate(update, bot)
 	}
+}
+
+func createBotWithNetworkRetry() *tgbotapi.BotAPI {
+	var bot *tgbotapi.BotAPI
+	err := errors.New("")
+	for err != nil {
+		bot, err = tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
+		if err != nil && !strings.Contains(err.Error(), "network is unreachable") {
+			panic(err)
+		}
+		if err != nil {
+			time.Sleep(time.Second * 10)
+		}
+	}
+	return bot
 }
 
 func notifyRestart(bot *tgbotapi.BotAPI) {
