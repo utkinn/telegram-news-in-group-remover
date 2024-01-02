@@ -10,13 +10,14 @@ import (
 	"github.com/utkinn/telegram-news-in-group-remover/helpers"
 )
 
-var lastMockAt time.Time
+var lastMockTimestampsPerChatId = make(map[int64]time.Time)
 
 func mockSender(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tgbotapi.User) {
-	if time.Since(lastMockAt).Minutes() < 1 {
+	lastMockAt, ok := lastMockTimestampsPerChatId[groupChatId]
+	if ok && time.Since(lastMockAt).Minutes() < 1 {
 		return
 	}
-	lastMockAt = time.Now()
+	lastMockTimestampsPerChatId[groupChatId] = time.Now()
 
 	stickerMessage := sendMockSticker(bot, groupChatId)
 	mockTextMessage := sendMockTextMessage(bot, groupChatId, newsSender)
