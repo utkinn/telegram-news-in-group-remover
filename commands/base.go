@@ -76,3 +76,13 @@ func Execute(ctx helpers.ResponseContext) {
 	}
 	ctx.SendSilentMarkdownFmt("_Неизвестная команда: %s_", cmdName)
 }
+
+func copyMarkupFromTextCmdArg(from tgbotapi.Message, to *tgbotapi.MessageConfig, textLength int) {
+	to.Entities = make([]tgbotapi.MessageEntity, 0, len(from.Entities)-1) // -1 for bot_command entity
+	for _, ent := range from.Entities {
+		if ent.Type != "bot_command" {
+			ent.Offset -= len(from.Text) - textLength
+			to.Entities = append(to.Entities, ent)
+		}
+	}
+}
