@@ -2,22 +2,28 @@ package filters
 
 import (
 	"fmt"
-	tgbotapi "github.com/utkinn/telegram-bot-api/v5"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
 	"log"
 	"net/http"
+
+	tgbotapi "github.com/utkinn/telegram-bot-api/v5"
+	"github.com/utkinn/telegram-news-in-group-remover/helpers"
 )
 
-type screenshotFilter struct{ bot *tgbotapi.BotAPI }
+func init() {
+	registerFilter(&screenshotFilter{})
+}
 
-func (s *screenshotFilter) IsMessageAllowed(message *tgbotapi.Message) bool {
-	if message.Photo == nil {
+type screenshotFilter struct{}
+
+func (s *screenshotFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
+	if ctx.Message.Photo == nil {
 		return true
 	}
 
-	img, err := s.downloadScreenshot(message)
+	img, err := s.downloadScreenshot(ctx)
 	if err != nil {
 		log.Printf("Screenshot filter failure: %v. Allowing this message to pass through.\n", err)
 		return true
@@ -42,14 +48,14 @@ func (s *screenshotFilter) Description() Description {
 	}
 }
 
-func (s *screenshotFilter) downloadScreenshot(message *tgbotapi.Message) (*image.Image, error) {
-	largestPhotoSize := message.Photo[0]
-	screenshotFile, err := s.bot.GetFile(tgbotapi.FileConfig{FileID: largestPhotoSize.FileID})
+func (s *screenshotFilter) downloadScreenshot(ctx helpers.ResponseContext) (*image.Image, error) {
+	largestPhotoSize := ctx.Message.Photo[0]
+	screenshotFile, err := ctx.Bot.GetFile(tgbotapi.FileConfig{FileID: largestPhotoSize.FileID})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get screenshot Telegram file: %v", err)
 	}
 
-	screenshotLink := screenshotFile.Link(s.bot.Token)
+	screenshotLink := screenshotFile.Link(ctx.Bot.Token)
 	resp, err := http.Get(screenshotLink)
 	if err != nil {
 		return nil, fmt.Errorf("failed to download screenshot: %v", err)

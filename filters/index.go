@@ -1,12 +1,12 @@
 package filters
 
 import (
-	tgbotapi "github.com/utkinn/telegram-bot-api/v5"
 	"github.com/utkinn/telegram-news-in-group-remover/db"
+	"github.com/utkinn/telegram-news-in-group-remover/helpers"
 )
 
 type Filter interface {
-	IsMessageAllowed(message *tgbotapi.Message) bool
+	IsMessageAllowed(ctx helpers.ResponseContext) bool
 	ScrutinyModeOnly() bool
 	ShouldSuppressMock() bool
 	Description() Description
@@ -21,14 +21,8 @@ const unstableNotice = "\n      _Этот фильтр эксперимента�
 
 var filters []Filter
 
-func Init(bot *tgbotapi.BotAPI) {
-	filters = []Filter{
-		&channelFilter{},
-		&regexFilter{},
-		&storiesFilter{},
-		&muteFilter{bot: bot},
-		&screenshotFilter{bot: bot},
-	}
+func registerFilter(filter Filter) {
+	filters = append(filters, filter)
 }
 
 func List() []Filter {
@@ -44,13 +38,13 @@ func ValidID(id string) bool {
 	return false
 }
 
-func IsMessageAllowed(message *tgbotapi.Message) (allowed, suppressMock bool) {
-	senderIsUnderScrutiny := db.IsUnderScrutiny(message.From.UserName)
+func IsMessageAllowed(ctx helpers.ResponseContext) (allowed, suppressMock bool) {
+	senderIsUnderScrutiny := db.IsUnderScrutiny(ctx.Message.From.UserName)
 	for _, f := range filters {
 		if !db.IsFilterEnabled(f.Description().ID) || f.ScrutinyModeOnly() && !senderIsUnderScrutiny {
 			continue
 		}
-		if !f.IsMessageAllowed(message) {
+		if !f.IsMessageAllowed(ctx) {
 			return false, f.ShouldSuppressMock()
 		}
 	}

@@ -1,17 +1,21 @@
 package filters
 
 import (
-	tgbotapi "github.com/utkinn/telegram-bot-api/v5"
 	"github.com/utkinn/telegram-news-in-group-remover/db"
+	"github.com/utkinn/telegram-news-in-group-remover/helpers"
 )
+
+func init() {
+	registerFilter(&channelFilter{})
+}
 
 type channelFilter struct{}
 
-func (f *channelFilter) IsMessageAllowed(message *tgbotapi.Message) bool {
-	if message.ForwardFromChat == nil {
+func (f *channelFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
+	if ctx.Message.ForwardFromChat == nil {
 		return true
 	}
-	return !db.IsChannelIdBanned(message.ForwardFromChat.ID)
+	return !db.IsChannelIdBanned(ctx.Message.ForwardFromChat.ID)
 }
 
 func (f *channelFilter) ScrutinyModeOnly() bool {

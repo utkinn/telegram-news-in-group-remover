@@ -21,8 +21,6 @@ var mockCleanupQueue = make(chan mock, 100)
 func main() {
 	bot := createBotWithNetworkRetry()
 
-	filters.Init(bot)
-
 	notifyRestart(bot)
 
 	setUpCommandList(bot)
@@ -127,7 +125,7 @@ func handleMessageToGroup(ctx helpers.ResponseContext) {
 		removeMessage(ctx.Bot, ctx.Message)
 	}
 
-	if allowed, shouldSuppressMock := filters.IsMessageAllowed(ctx.Message); !allowed {
+	if allowed, shouldSuppressMock := filters.IsMessageAllowed(ctx); !allowed {
 		removeMessage(ctx.Bot, ctx.Message)
 		// Get ready to remove the entire album
 		offendingMediaGroupId = ctx.Message.MediaGroupID

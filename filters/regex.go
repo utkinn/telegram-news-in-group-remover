@@ -2,15 +2,20 @@ package filters
 
 import (
 	"errors"
-	"github.com/dlclark/regexp2"
-	tgbotapi "github.com/utkinn/telegram-bot-api/v5"
-	"github.com/utkinn/telegram-news-in-group-remover/db"
 	"log"
+
+	"github.com/dlclark/regexp2"
+	"github.com/utkinn/telegram-news-in-group-remover/db"
+	"github.com/utkinn/telegram-news-in-group-remover/helpers"
 )
+
+func init() {
+	registerFilter(&regexFilter{})
+}
 
 type regexFilter struct{}
 
-func (f *regexFilter) IsMessageAllowed(message *tgbotapi.Message) bool {
+func (f *regexFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
 	regexes := db.GetRegexes()
 	for _, regex := range regexes {
 		caseInsensitiveRegex, err := regexp2.Compile(regex, regexp2.IgnoreCase)
@@ -18,14 +23,14 @@ func (f *regexFilter) IsMessageAllowed(message *tgbotapi.Message) bool {
 			log.Printf("Failed to compile regex %s: %v", caseInsensitiveRegex, err)
 			return true
 		}
-		textMatch, textErr := caseInsensitiveRegex.MatchString(message.Text)
-		captionMatch, captionErr := caseInsensitiveRegex.MatchString(message.Caption)
+		textMatch, textErr := caseInsensitiveRegex.MatchString(ctx.Message.Text)
+		captionMatch, captionErr := caseInsensitiveRegex.MatchString(ctx.Message.Caption)
 		if captionMatch || textMatch {
 			return false
 		}
 		if err := errors.Join(textErr, captionErr); err != nil {
 			log.Printf("regexp %s MatchString failed: %v\nText to match against was: \"%s\"\nCaption to match against was: \"%s\"\n",
-				regex, err, message.Text, message.Caption)
+				regex, err, ctx.Message.Text, ctx.Message.Caption)
 		}
 	}
 
