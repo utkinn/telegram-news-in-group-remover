@@ -1,22 +1,21 @@
 package db
 
-type AdminDB database[string]
+type AdminDB struct{ database[string] }
 
-var adminDB *AdminDB
+var adminDB = AdminDB{database[string]{
+	filename: "admins.json",
+}}
 
 func init() {
-	adminDB = &AdminDB{
-		filename: "admins.json",
-	}
-	(*database[string])(adminDB).load()
+	adminDB.load()
 }
 
 func GetAdminDB() *AdminDB {
-	return adminDB
+	return &adminDB
 }
 
 func NewAdminDBForTesting() *AdminDB {
-	return &AdminDB{data: []string{"SuperAdmin", "Admin"}}
+	return &AdminDB{database[string]{data: []string{"SuperAdmin", "Admin"}}}
 }
 
 func (db *AdminDB) IsAdmin(nick string) bool {

@@ -3,7 +3,7 @@ package db
 import "testing"
 
 func TestIsAdmin(t *testing.T) {
-	adminDB := AdminDB{data: []string{"SuperAdminUserName", "RegularAdminUserName"}}
+	adminDB := AdminDB{database[string]{data: []string{"SuperAdminUserName", "RegularAdminUserName"}}}
 
 	if !adminDB.IsAdmin("RegularAdminUserName") {
 		t.Fatal("It thinks that RegularAdminUserName is not an admin")
@@ -14,7 +14,7 @@ func TestIsAdmin(t *testing.T) {
 }
 
 func TestIsSuperAdmin(t *testing.T) {
-	adminDB := AdminDB{data: []string{"SuperAdminUserName", "RegularAdminUserName"}}
+	adminDB := AdminDB{database[string]{data: []string{"SuperAdminUserName", "RegularAdminUserName"}}}
 
 	if !adminDB.IsSuperAdmin("SuperAdminUserName") {
 		t.Fatal("It thinks that SuperAdminUserName is not a super admin")
