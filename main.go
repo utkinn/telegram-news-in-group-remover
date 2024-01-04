@@ -32,7 +32,7 @@ func main() {
 
 	updates := bot.GetUpdatesChan(updateConfig)
 	for update := range updates {
-		handleUpdate(update, bot)
+		handleUpdate(update, bot, db.GetAdminDB())
 	}
 }
 
@@ -77,7 +77,7 @@ func setUpCommandList(bot *tgbotapi.BotAPI) {
 	}
 }
 
-func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
+func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI, adminDB *db.AdminDB) {
 	message := update.Message
 	if message == nil {
 		return
@@ -86,7 +86,7 @@ func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	ctx := helpers.ResponseContext{Message: message, Bot: bot}
 
 	if message.Chat.Type == "private" {
-		handleMessageToBot(ctx, newTelegramTextResponder(bot, message.Chat.ID), commands.Execute)
+		handleMessageToBot(ctx, newTelegramTextResponder(bot, message.Chat.ID), commands.Execute, adminDB)
 		return
 	}
 
@@ -95,12 +95,17 @@ func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 
 const goAway = "Исчезни, я тебя не знаю."
 
-func handleMessageToBot(ctx helpers.ResponseContext, resp textResponder, executeCommand func(ctx helpers.ResponseContext)) {
+func handleMessageToBot(
+	ctx helpers.ResponseContext,
+	resp textResponder,
+	executeCommand func(ctx helpers.ResponseContext),
+	adminDB *db.AdminDB,
+) {
 	if ctx.Message.Sticker != nil {
 		fmt.Println(ctx.Message.Sticker.FileID)
 	}
 
-	if !db.IsAdmin(ctx.Message.From.UserName) {
+	if !adminDB.IsAdmin(ctx.Message.From.UserName) {
 		resp.RespondTextf(tgbotapi.ModeMarkdown, true, goAway)
 		return
 	}

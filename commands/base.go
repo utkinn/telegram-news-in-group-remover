@@ -27,7 +27,7 @@ func newSuperAdminCommand(name, help string, callback commandCallback) command {
 		name: name,
 		help: help,
 		callback: func(ctx helpers.ResponseContext) {
-			if !db.IsSuperAdmin(ctx.Message.From.UserName) {
+			if !db.GetAdminDB().IsSuperAdmin(ctx.Message.From.UserName) {
 				ctx.SendSilentMarkdownFmt("_Эта команда доступна только для суперадмина._")
 				return
 			}
@@ -41,7 +41,7 @@ func newHiddenSuperAdminCommand(name string, callback commandCallback) command {
 		name:   name,
 		hidden: true,
 		callback: func(ctx helpers.ResponseContext) {
-			if !db.IsSuperAdmin(ctx.Message.From.UserName) {
+			if !db.GetAdminDB().IsSuperAdmin(ctx.Message.From.UserName) {
 				ctx.SendSilentMarkdownFmt("_Эта команда доступна только для суперадмина._")
 				return
 			}

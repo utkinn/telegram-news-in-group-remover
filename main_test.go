@@ -26,13 +26,12 @@ func (r *testTextResponder) RespondTextf(parseMode string, silent bool, format s
 }
 
 func TestRejectsUnknownUsersInBotChat(t *testing.T) {
-	db.SetAdminsForTesting()
-
 	var responder testTextResponder
 	handleMessageToBot(
 		newResponseContextStub("Chiga", "/clear"),
 		&responder,
 		func(ctx helpers.ResponseContext) { t.Fatal("commands.Execute was not expected to be called") },
+		db.NewAdminDBForTesting(),
 	)
 
 	if len(responder) != 1 {
@@ -44,13 +43,12 @@ func TestRejectsUnknownUsersInBotChat(t *testing.T) {
 }
 
 func TestSkipMessagesToBotWithoutText(t *testing.T) {
-	db.SetAdminsForTesting()
-
 	var responder testTextResponder
 	handleMessageToBot(
 		newResponseContextStub("Admin", ""),
 		&responder,
 		func(ctx helpers.ResponseContext) { t.Fatal("commands.Execute was not expected to be called") },
+		db.NewAdminDBForTesting(),
 	)
 
 	if len(responder) != 0 {
@@ -59,8 +57,6 @@ func TestSkipMessagesToBotWithoutText(t *testing.T) {
 }
 
 func TestExecuteCommandInMessageToBot(t *testing.T) {
-	db.SetAdminsForTesting()
-
 	executeCommandCalled := false
 	var responder testTextResponder
 	responseContext := newResponseContextStub("Admin", "/start")
@@ -71,6 +67,7 @@ func TestExecuteCommandInMessageToBot(t *testing.T) {
 		func(ctx helpers.ResponseContext) {
 			executeCommandCalled = true
 		},
+		db.NewAdminDBForTesting(),
 	)
 
 	if !executeCommandCalled {
@@ -79,8 +76,6 @@ func TestExecuteCommandInMessageToBot(t *testing.T) {
 }
 
 func TestBanChannelOfForwardedMessage(t *testing.T) {
-	db.SetAdminsForTesting()
-
 	var responder testTextResponder
 	responseContext := newResponseContextStub("Admin", "Crappy news!!!")
 	responseContext.Message.ForwardFromChat = &tgbotapi.Chat{ID: 666, Title: "Crappy channel"}
@@ -90,6 +85,7 @@ func TestBanChannelOfForwardedMessage(t *testing.T) {
 		func(ctx helpers.ResponseContext) {
 			t.Fatal("commands.Execute was not expected to be called")
 		},
+		db.NewAdminDBForTesting(),
 	)
 
 	if !db.IsChannelIdBanned(666) {
@@ -105,8 +101,6 @@ func TestBanChannelOfForwardedMessage(t *testing.T) {
 }
 
 func TestSkipNonForwardedTextMessagesToBot(t *testing.T) {
-	db.SetAdminsForTesting()
-
 	var responder testTextResponder
 	handleMessageToBot(
 		newResponseContextStub("Admin", "text"),
@@ -114,6 +108,7 @@ func TestSkipNonForwardedTextMessagesToBot(t *testing.T) {
 		func(ctx helpers.ResponseContext) {
 			t.Fatal("commands.Execute was not expected to be called")
 		},
+		db.NewAdminDBForTesting(),
 	)
 }
 

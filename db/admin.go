@@ -1,15 +1,26 @@
 package db
 
-var adminsDb = database[string]{
-	filename: "admins.json",
-}
+type AdminDB database[string]
+
+var adminDB *AdminDB
 
 func init() {
-	adminsDb.load()
+	adminDB = &AdminDB{
+		filename: "admins.json",
+	}
+	(*database[string])(adminDB).load()
 }
 
-func IsAdmin(nick string) bool {
-	for _, n := range adminsDb.data {
+func GetAdminDB() *AdminDB {
+	return adminDB
+}
+
+func NewAdminDBForTesting() *AdminDB {
+	return &AdminDB{data: []string{"SuperAdmin", "Admin"}}
+}
+
+func (db *AdminDB) IsAdmin(nick string) bool {
+	for _, n := range db.data {
 		if n == nick {
 			return true
 		}
@@ -19,10 +30,6 @@ func IsAdmin(nick string) bool {
 
 // IsSuperAdmin reports whether nick belongs to the Super Admin.
 // Super-admin is the first admin in the admin database.
-func IsSuperAdmin(nick string) bool {
-	return adminsDb.data[0] == nick
-}
-
-func SetAdminsForTesting() {
-	adminsDb.data = []string{"SuperAdmin", "Admin"}
+func (db *AdminDB) IsSuperAdmin(nick string) bool {
+	return db.data[0] == nick
 }
