@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	const help = "\n\n_Добавить регулярное выражение можно командой /banregex._"
+	const help = "\n\nДобавить регулярное выражение можно командой /banregex."
 
 	registerCommand(
 		newCommand("listregex", "Пристальный присмотр - показать список запрещенных регулярных выражений", func(ctx helpers.ResponseContext) {
