@@ -1,6 +1,8 @@
+github.com/OvyFlash/telegram-bot-api/v5 v5.0.0-20231230151827-6d16deaa376e h1:55bczKHxcbPAEryw4ac2RgeWJF1b8YObJunfIBoIk9M=
+github.com/OvyFlash/telegram-bot-api/v5 v5.0.0-20231230151827-6d16deaa376e/go.mod h1:A2S0CWkNylc2phvKXWBBdD3K0iGnDBGbzRpISP2zBl8=
 github.com/dlclark/regexp2 v1.10.0 h1:+/GIL799phkJqYW+3YbOd8LCcbHzT0Pbo8zl70MHsq0=
 github.com/dlclark/regexp2 v1.10.0/go.mod h1:DHkYz0B9wPfa6wondMfaivmHpzrQ3v9q8cnmRbL6yW8=
+github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.6.0 h1:OwWaX96xEoeALizMJg4gN+uNsYZByCT12E23uI9QKLo=
+github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.6.0/go.mod h1:ccaPQ+sybkJNnKAXKq/jx7QXDC7ftQmUJANX4VyHU4E=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
 github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
-github.com/utkinn/telegram-bot-api/v5 v5.6.0 h1:OwWaX96xEoeALizMJg4gN+uNsYZByCT12E23uI9QKLo=
-github.com/utkinn/telegram-bot-api/v5 v5.6.0/go.mod h1:ccaPQ+sybkJNnKAXKq/jx7QXDC7ftQmUJANX4VyHU4E=

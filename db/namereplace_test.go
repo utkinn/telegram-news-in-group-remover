@@ -5,7 +5,7 @@ import (
 	"path"
 	"testing"
 
-	tgbotapi "github.com/utkinn/telegram-bot-api/v5"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func TestGetNameForUserWorksWithReplacement(t *testing.T) {

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	_ "github.com/joho/godotenv/autoload"
-	tgbotapi "github.com/utkinn/telegram-bot-api/v5"
 	"github.com/utkinn/telegram-news-in-group-remover/commands"
 	"github.com/utkinn/telegram-news-in-group-remover/db"
 	"github.com/utkinn/telegram-news-in-group-remover/filters"

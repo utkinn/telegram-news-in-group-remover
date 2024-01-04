@@ -1,6 +1,6 @@
 package db
 
-import tgbotapi "github.com/utkinn/telegram-bot-api/v5"
+import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 type nameReplacement struct {
 	Username, NameReplacement string
