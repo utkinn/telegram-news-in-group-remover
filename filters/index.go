@@ -39,9 +39,9 @@ func ValidID(id string) bool {
 }
 
 func IsMessageAllowed(ctx helpers.ResponseContext) (allowed, suppressMock bool) {
-	senderIsUnderScrutiny := db.IsUnderScrutiny(ctx.Message.From.UserName)
+	senderIsUnderScrutiny := db.GetScrutinyDB().IsUnderScrutiny(ctx.Message.From.UserName)
 	for _, f := range filters {
-		if !db.IsFilterEnabled(f.Description().ID) || f.ScrutinyModeOnly() && !senderIsUnderScrutiny {
+		if !db.GetFilterToggleDB().IsFilterEnabled(f.Description().ID) || f.ScrutinyModeOnly() && !senderIsUnderScrutiny {
 			continue
 		}
 		if !f.IsMessageAllowed(ctx) {

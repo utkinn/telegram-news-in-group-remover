@@ -9,5 +9,5 @@ import (
 
 func Remove(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	helpers.Send(bot, tgbotapi.NewDeleteMessage(message.Chat.ID, message.MessageID))
-	db.RecordMessageRemoval(message)
+	db.GetRemovedMessageDB().Add(message)
 }

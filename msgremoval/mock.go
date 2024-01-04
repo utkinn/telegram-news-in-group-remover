@@ -25,13 +25,13 @@ func MockUser(bot *tgbotapi.BotAPI, groupChatId int64, user *tgbotapi.User) {
 }
 
 func sendMockSticker(bot *tgbotapi.BotAPI, groupChatId int64) *tgbotapi.Message {
-	stickerMessageRequest := tgbotapi.NewSticker(groupChatId, db.GetRandomMockStickerFileId())
+	stickerMessageRequest := tgbotapi.NewSticker(groupChatId, db.GetStickerDB().GetRandomMockStickerFileId())
 	stickerMessageRequest.DisableNotification = true
 	return helpers.Send(bot, stickerMessageRequest)
 }
 
 func sendMockTextMessage(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tgbotapi.User) *tgbotapi.Message {
-	senderFunnyName := db.GetNameForUser(newsSender)
+	senderFunnyName := db.GetNameReplacementDB().GetNameForUser(newsSender)
 	mockTextMessageRequest := tgbotapi.NewMessage(groupChatId, fmt.Sprintf("%s, вспышка слева!", senderFunnyName))
 	mockTextMessageRequest.DisableNotification = true
 	if rand.Intn(100) <= 2 {

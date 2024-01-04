@@ -29,7 +29,7 @@ func TestGetNameForUserWorksWithReplacement(t *testing.T) {
 	nameReplacementsDb.load()
 
 	user := tgbotapi.User{UserName: "Alex123", FirstName: "Alex"}
-	replaced := GetNameForUser(&user)
+	replaced := nameReplacementsDb.GetNameForUser(&user)
 
 	if replaced != "Funny guy" {
 		t.Fatalf("Name replacement failed, got %v instead", replaced)

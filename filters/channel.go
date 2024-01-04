@@ -15,7 +15,7 @@ func (f *channelFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
 	if ctx.Message.ForwardFromChat == nil {
 		return true
 	}
-	return !db.IsChannelIdBanned(ctx.Message.ForwardFromChat.ID)
+	return !db.GetBannedChannelDB().IsBanned(ctx.Message.ForwardFromChat.ID)
 }
 
 func (f *channelFilter) ScrutinyModeOnly() bool {

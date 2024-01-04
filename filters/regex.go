@@ -16,7 +16,7 @@ func init() {
 type regexFilter struct{}
 
 func (f *regexFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
-	regexes := db.GetRegexes()
+	regexes := db.GetBannedRegexDB().Get()
 	for _, regex := range regexes {
 		caseInsensitiveRegex, err := regexp2.Compile(regex, regexp2.IgnoreCase)
 		if err != nil {

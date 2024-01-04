@@ -15,7 +15,7 @@ func init() {
 				return
 			}
 
-			db.ClearBannedChannels()
+			db.GetBannedChannelDB().Clear()
 			ctx.SendSilentMarkdownFmt("Ну, как хочешь.\n_Список забаненных каналов очищен._")
 		}),
 	)

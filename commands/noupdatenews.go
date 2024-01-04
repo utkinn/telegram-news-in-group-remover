@@ -8,7 +8,7 @@ import (
 func init() {
 	registerCommand(
 		newCommand("noupdatenews", "Отписаться от новостей об обновлениях этого бота", func(ctx helpers.ResponseContext) {
-			db.GetAnnouncementSubscriptionsDB().UnsubscribeFromAnnouncements(ctx.Message.Chat.ID)
+			db.GetAnnouncementSubscriptionDB().Unsubscribe(ctx.Message.Chat.ID)
 			ctx.SendSilentMarkdownFmt("Ты теперь _не_ подписан на новости об обновлениях.")
 		}),
 	)

@@ -5,14 +5,20 @@ type filterToggle struct {
 	Enabled bool
 }
 
-var filterToggleDb = database[filterToggle]{filename: "filter-toggles.json"}
+type FilterToggleDB struct{ database[filterToggle] }
+
+var filterToggleDb = FilterToggleDB{database[filterToggle]{filename: "filter-toggles.json"}}
 
 func init() {
 	filterToggleDb.load()
 }
 
-func IsFilterEnabled(id string) bool {
-	toggle, found := filterToggleDb.first(func(item filterToggle) bool { return item.Id == id })
+func GetFilterToggleDB() *FilterToggleDB {
+	return &filterToggleDb
+}
+
+func (db *FilterToggleDB) IsFilterEnabled(id string) bool {
+	toggle, found := db.first(func(item filterToggle) bool { return item.Id == id })
 	if !found {
 		// To be compatible with the previous version that had all filters enabled, return true if no toggle is found
 		return true
@@ -20,8 +26,8 @@ func IsFilterEnabled(id string) bool {
 	return toggle.Enabled
 }
 
-func SetFilterEnabled(id string, enabled bool) {
-	filterToggleDb.addOrReplace(
+func (db *FilterToggleDB) SetFilterEnabled(id string, enabled bool) {
+	db.addOrReplace(
 		filterToggle{Id: id, Enabled: enabled},
 		func(a, b filterToggle) bool { return a.Id == b.Id },
 	)

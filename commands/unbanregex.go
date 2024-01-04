@@ -14,7 +14,7 @@ func init() {
 				return
 			}
 
-			db.UnbanRegex(regex)
+			db.GetBannedRegexDB().Unban(regex)
 			ctx.SendSilentMarkdownFmt("Теперь это регулярное выражение не под запретом.")
 		}),
 	)

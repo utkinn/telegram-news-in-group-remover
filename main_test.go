@@ -88,7 +88,7 @@ func TestBanChannelOfForwardedMessage(t *testing.T) {
 		db.NewAdminDBForTesting(),
 	)
 
-	if !db.IsChannelIdBanned(666) {
+	if !db.GetBannedChannelDB().IsBanned(666) {
 		t.Fatal("Channel was not banned")
 	}
 	if len(responder) != 1 {

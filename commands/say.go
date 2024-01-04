@@ -21,7 +21,7 @@ func init() {
 		text := chatNumStrAndText[1]
 
 		chatNum, _ := strconv.Atoi(chatNumStr)
-		chatId, ok := db.GetChatIdByNumber(chatNum)
+		chatId, ok := db.GetChatsDB().GetIdByOrdinal(chatNum)
 		if !ok {
 			ctx.SendSilentFmt("Неправильный номер чата: %s\n\nИспользуй /chats, чтобы посмотреть, куда можно писать", chatNumStr)
 			return

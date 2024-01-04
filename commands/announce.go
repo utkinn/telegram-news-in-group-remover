@@ -9,7 +9,7 @@ import (
 func init() {
 	registerCommand(
 		newSuperAdminCommand("announce", "Анонсировать обновление", func(ctx helpers.ResponseContext) {
-			for _, chatId := range db.GetAnnouncementSubscriptionsDB().GetChatIdsOfAdminsSubscribedToAnnouncements() {
+			for _, chatId := range db.GetAnnouncementSubscriptionDB().GetChatIdsOfSubscribedAdmins() {
 				text := ctx.Message.CommandArguments()
 				msg := tgbotapi.NewMessage(chatId, text)
 				msg.DisableNotification = true

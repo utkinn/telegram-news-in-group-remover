@@ -22,7 +22,7 @@ func init() {
 				return
 			}
 
-			err := db.BanRegex(regex)
+			err := db.GetBannedRegexDB().Ban(regex)
 			if err != nil {
 				ctx.SendSilentFmt("Не удалось добавить регулярное выражение: %v", err)
 				return
@@ -50,7 +50,7 @@ func removeMatchingMessagesFromMsgmem(regex string, bot *tgbotapi.BotAPI) {
 				regex, err, item.Text)
 			continue
 		}
-		if match && db.IsUnderScrutiny(item.From.UserName) { // TODO: check using filter
+		if match && db.GetScrutinyDB().IsUnderScrutiny(item.From.UserName) { // TODO: check using filter
 			msgremoval.Remove(bot, item)
 			if !userNamesMockedSoFar[item.From.UserName] {
 				msgremoval.MockUser(bot, item.Chat.ID, item.From)

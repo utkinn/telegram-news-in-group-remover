@@ -5,9 +5,9 @@ type Channel struct {
 	Title string
 }
 
-type BannedChannelsDB struct{ database[Channel] }
+type BannedChannelDB struct{ database[Channel] }
 
-var bannedChannelsDb = BannedChannelsDB{database[Channel]{
+var bannedChannelsDb = BannedChannelDB{database[Channel]{
 	filename: "banned-channels.json",
 }}
 
@@ -15,15 +15,15 @@ func init() {
 	bannedChannelsDb.load()
 }
 
-func GetBannedChannelsDB() *BannedChannelsDB {
+func GetBannedChannelDB() *BannedChannelDB {
 	return &bannedChannelsDb
 }
 
-func (db *BannedChannelsDB) GetBannedChannels() []Channel {
+func (db *BannedChannelDB) Get() []Channel {
 	return db.data
 }
 
-func (db *BannedChannelsDB) BanChannel(ch Channel) {
+func (db *BannedChannelDB) Ban(ch Channel) {
 	db.data = removeDuplicateChannelsById(append(db.data, ch))
 	db.write()
 }
@@ -40,7 +40,7 @@ func removeDuplicateChannelsById(sliceList []Channel) []Channel {
 	return list
 }
 
-func (db *BannedChannelsDB) IsChannelIdBanned(channelId int64) bool {
+func (db *BannedChannelDB) IsBanned(channelId int64) bool {
 	for _, ch := range db.data {
 		if ch.Id == channelId {
 			return true
@@ -49,7 +49,7 @@ func (db *BannedChannelsDB) IsChannelIdBanned(channelId int64) bool {
 	return false
 }
 
-func (db *BannedChannelsDB) ClearBannedChannels() {
+func (db *BannedChannelDB) Clear() {
 	db.data = make([]Channel, 0)
 	db.write()
 }

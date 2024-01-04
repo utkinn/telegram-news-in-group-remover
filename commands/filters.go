@@ -18,7 +18,7 @@ func init() {
 				desc := filter.Description()
 
 				var stateEmoji string
-				if db.IsFilterEnabled(desc.ID) {
+				if db.GetFilterToggleDB().IsFilterEnabled(desc.ID) {
 					stateEmoji = "🟢"
 				} else {
 					stateEmoji = "🔴"

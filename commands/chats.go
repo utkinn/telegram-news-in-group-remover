@@ -10,7 +10,7 @@ import (
 func init() {
 	registerCommand(
 		newCommand("chats", "Список групповых чатов, куда можно писать командой /say", func(ctx helpers.ResponseContext) {
-			chats := db.GetChats()
+			chats := db.GetChatsDB().Get()
 			if len(chats) == 0 {
 				ctx.SendSilentFmt("Нет ни одного чата, куда можно писать командой /say. Подожди, пока в один из чатов, где есть я, кто-нибудь напишет.")
 				return

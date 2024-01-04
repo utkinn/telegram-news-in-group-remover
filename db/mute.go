@@ -11,27 +11,33 @@ type mute struct {
 	IsAnnounced    bool
 }
 
-var muteDb = database[mute]{filename: "mute.json"}
+type MuteDB struct{ database[mute] }
+
+var muteDb = MuteDB{database[mute]{filename: "mute.json"}}
 
 func init() {
 	muteDb.load()
 }
 
-func MuteUser(userName string) {
-	muteDb.add(mute{
+func GetMuteDB() *MuteDB {
+	return &muteDb
+}
+
+func (db *MuteDB) MuteUser(userName string) {
+	db.add(mute{
 		UserName: userName,
 		StartAt:  time.Now(),
 		EndAt:    time.Now().Add(randomMuteDuration()),
 	})
 }
 
-func UnmuteUser(userName string) {
-	muteDb.filterInPlace(func(item mute) bool { return item.UserName != userName })
+func (db *MuteDB) UnmuteUser(userName string) {
+	db.filterInPlace(func(item mute) bool { return item.UserName != userName })
 }
 
-func IsUserMuted(userName string) (muted, announced bool) {
-	muteDb.filterInPlace(func(item mute) bool { return !item.EndAt.Before(time.Now()) })
-	for _, item := range muteDb.data {
+func (db *MuteDB) IsUserMuted(userName string) (muted, announced bool) {
+	db.filterInPlace(func(item mute) bool { return !item.EndAt.Before(time.Now()) })
+	for _, item := range db.data {
 		if item.UserName == userName {
 			return true, item.IsAnnounced
 		}
@@ -39,13 +45,13 @@ func IsUserMuted(userName string) (muted, announced bool) {
 	return false, false
 }
 
-func MarkMuteAnnounced(userName string) {
-	for i, item := range muteDb.data {
+func (db *MuteDB) MarkMuteAnnounced(userName string) {
+	for i, item := range db.data {
 		if item.UserName == userName {
-			muteDb.data[i].IsAnnounced = true
+			db.data[i].IsAnnounced = true
 		}
 	}
-	muteDb.write()
+	db.write()
 }
 
 const minMuteDuration = time.Minute * 10

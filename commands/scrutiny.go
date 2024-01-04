@@ -15,7 +15,7 @@ func init() {
 				ctx.SendSilentMarkdownFmt("_Нужен один аргумент — ник пользователя._")
 				return
 			}
-			db.AddToScrutiny(userName)
+			db.GetScrutinyDB().Add(userName)
 			ctx.SendSilentMarkdownFmt("*%s* теперь под _пристальным присмотром_. Вытащить его оттуда можно командой /unscrutiny.", userName)
 		}),
 	)

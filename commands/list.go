@@ -12,7 +12,7 @@ func init() {
 
 	registerCommand(
 		newCommand("list", "Список забаненных каналов", func(ctx helpers.ResponseContext) {
-			ctx.SendSilentFmt(listChannelsToString(db.GetBannedChannels()) + help)
+			ctx.SendSilentFmt(listChannelsToString(db.GetBannedChannelDB().Get()) + help)
 		}),
 	)
 }

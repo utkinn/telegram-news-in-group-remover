@@ -15,7 +15,7 @@ func init() {
 				ctx.SendSilentMarkdownFmt("_Нужен один аргумент — ник пользователя._")
 				return
 			}
-			if db.RemoveFromScrutiny(userName) {
+			if db.GetScrutinyDB().Remove(userName) {
 				ctx.SendSilentMarkdownFmt("*%s* выписан из списка _пристального присмотра_.", userName)
 			} else {
 				ctx.SendSilentMarkdownFmt("*%s* не было в списке _пристального присмотра_, но вычеркнуть я попытался.", userName)

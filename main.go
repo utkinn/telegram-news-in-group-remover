@@ -124,7 +124,7 @@ func handleMessageToBot(
 var offendingMediaGroupId string
 
 func handleMessageToGroup(ctx helpers.ResponseContext) {
-	db.AddChat(db.Chat{Id: ctx.Message.Chat.ID, Title: ctx.Message.Chat.Title})
+	db.GetChatsDB().Add(db.Chat{Id: ctx.Message.Chat.ID, Title: ctx.Message.Chat.Title})
 
 	if ctx.Message.MediaGroupID != "" && ctx.Message.MediaGroupID == offendingMediaGroupId {
 		msgremoval.Remove(ctx.Bot, ctx.Message)
@@ -147,7 +147,7 @@ func banChannelOfForwardedMessage(ctx helpers.ResponseContext, resp textResponde
 		return
 	}
 	channelRecord := db.Channel{Id: ctx.Message.ForwardFromChat.ID, Title: ctx.Message.ForwardFromChat.Title}
-	db.BanChannel(channelRecord)
+	db.GetBannedChannelDB().Ban(channelRecord)
 	removeMessagesFromNewlyBannedChannel(ctx.Bot, channelRecord)
 	sendBanResponse(resp)
 }

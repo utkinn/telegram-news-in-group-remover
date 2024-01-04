@@ -5,28 +5,34 @@ type Chat struct {
 	Title string
 }
 
-var chatsDb = database[Chat]{
+type ChatDB struct{ database[Chat] }
+
+var chatsDb = ChatDB{database[Chat]{
 	filename: "group-chats.json",
-}
+}}
 
 func init() {
 	chatsDb.load()
 }
 
-func GetChats() []Chat {
-	return chatsDb.data
+func GetChatsDB() *ChatDB {
+	return &chatsDb
 }
 
-func GetChatIdByNumber(num int) (int64, bool) {
-	if num < 1 || num > len(chatsDb.data) {
+func (db *ChatDB) Get() []Chat {
+	return db.data
+}
+
+func (db *ChatDB) GetIdByOrdinal(num int) (int64, bool) {
+	if num < 1 || num > len(db.data) {
 		return 0, false
 	}
-	return chatsDb.data[num-1].Id, true
+	return db.data[num-1].Id, true
 }
 
-func AddChat(chat Chat) {
-	chatsDb.data = removeDuplicateChatsById(append(chatsDb.data, chat))
-	chatsDb.write()
+func (db *ChatDB) Add(chat Chat) {
+	db.data = removeDuplicateChatsById(append(db.data, chat))
+	db.write()
 }
 
 func removeDuplicateChatsById(sliceList []Chat) []Chat {

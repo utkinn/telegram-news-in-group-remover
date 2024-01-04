@@ -13,7 +13,7 @@ func init() {
 
 	registerCommand(
 		newCommand("listregex", "Пристальный присмотр - показать список запрещенных регулярных выражений", func(ctx helpers.ResponseContext) {
-			regexes := db.GetRegexes()
+			regexes := db.GetBannedRegexDB().Get()
 			if len(regexes) == 0 {
 				ctx.SendSilentMarkdownFmt("_Нет регулярных выражений_" + help)
 				return

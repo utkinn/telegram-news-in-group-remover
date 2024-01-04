@@ -34,6 +34,6 @@ func filterOnOffCallback(ctx helpers.ResponseContext, newState bool) {
 		return
 	}
 
-	db.SetFilterEnabled(id, newState)
+	db.GetFilterToggleDB().SetFilterEnabled(id, newState)
 	ctx.SendSilentMarkdownFmt("_Состояние фильтра обновлено._")
 }

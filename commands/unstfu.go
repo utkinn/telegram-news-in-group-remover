@@ -19,7 +19,7 @@ func init() {
 					return
 				}
 
-				db.UnmuteUser(userName)
+				db.GetMuteDB().UnmuteUser(userName)
 				ctx.SendSilentMarkdownFmt("Пользователь с ником %s возвращен с принудительного отдыха.", userName)
 			},
 		),
