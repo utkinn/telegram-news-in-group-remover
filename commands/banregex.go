@@ -10,7 +10,7 @@ func init() {
 		newCommand("banregex", "Пристальный присмотр - запретить сообщения, совпадающие по регулярному выражению", func(ctx helpers.ResponseContext) {
 			regex := ctx.Message.CommandArguments()
 			if len(regex) == 0 {
-				ctx.SendSilentMarkdownFmt("Ты забыл ввести регулярное выражение.\nСправка [тут](https://golang-blog.blogspot.com/2020/03/regexp-golang.html). Подебажить выражение можешь [тут](https://regex101.com).")
+				ctx.SendSilentMarkdownFmt("Ты забыл ввести регулярное выражение.\n[Тут](https://golang-blog.blogspot.com/2020/03/regexp-golang.html) можно узнать, что это такое. А [тут](https://regex101.com) можно его потестировать.")
 				return
 			}
 

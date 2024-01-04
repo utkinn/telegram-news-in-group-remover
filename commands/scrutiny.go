@@ -16,7 +16,7 @@ func init() {
 				return
 			}
 			db.AddToScrutiny(userName)
-			ctx.SendSilentMarkdownFmt("*%s* теперь под _пристальным присмотром_.", userName)
+			ctx.SendSilentMarkdownFmt("*%s* теперь под _пристальным присмотром_. Вытащить его оттуда можно командой /unscrutiny.", userName)
 		}),
 	)
 }

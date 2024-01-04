@@ -8,9 +8,11 @@ import (
 )
 
 func init() {
+	const help = "\n\n_Канал можно забанить, переслав любое сообщение из него мне._"
+
 	registerCommand(
 		newCommand("list", "Список забаненных каналов", func(ctx helpers.ResponseContext) {
-			ctx.SendSilentFmt(listChannelsToString(db.GetBannedChannels()))
+			ctx.SendSilentFmt(listChannelsToString(db.GetBannedChannels()) + help)
 		}),
 	)
 }

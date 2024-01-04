@@ -29,7 +29,7 @@ func init() {
 					scrutinyNotice = "\n      ▪️_Только для пристального присмотра (/scrutiny)_"
 				}
 
-				lines[i] = fmt.Sprintf("%v `[%v]` %v\n      %v%v", stateEmoji, desc.ID, desc.Name, desc.Desc, scrutinyNotice)
+				lines[i] = fmt.Sprintf("%v [`%v`] %v\n      %v%v", stateEmoji, desc.ID, desc.Name, desc.Desc, scrutinyNotice)
 			}
 			ctx.SendSilentMarkdownFmt(strings.Join(lines, "\n\n"))
 		}),
