@@ -1,4 +1,4 @@
-package main
+package msgremoval
 
 import (
 	"time"
@@ -12,9 +12,11 @@ type mock struct {
 	time     time.Time
 }
 
+var mockCleanupQueue = make(chan mock, 100)
+
 const mockCleanupDelay = 2 * time.Minute
 
-func mockCleaner(bot *tgbotapi.BotAPI) {
+func MockCleaner(bot *tgbotapi.BotAPI) {
 	for m := range mockCleanupQueue {
 		time.Sleep(mockCleanupDelay - (time.Since(m.time)))
 		for _, msg := range m.messages {

@@ -14,9 +14,9 @@ import (
 	"github.com/utkinn/telegram-news-in-group-remover/db"
 	"github.com/utkinn/telegram-news-in-group-remover/filters"
 	"github.com/utkinn/telegram-news-in-group-remover/helpers"
+	"github.com/utkinn/telegram-news-in-group-remover/msgmem"
+	"github.com/utkinn/telegram-news-in-group-remover/msgremoval"
 )
-
-var mockCleanupQueue = make(chan mock, 100)
 
 func main() {
 	bot := createBotWithNetworkRetry()
@@ -28,7 +28,7 @@ func main() {
 	updateConfig := tgbotapi.NewUpdate(0)
 	updateConfig.Timeout = 30
 
-	go mockCleaner(bot)
+	go msgremoval.MockCleaner(bot)
 
 	updates := bot.GetUpdatesChan(updateConfig)
 	for update := range updates {
@@ -122,20 +122,18 @@ func handleMessageToGroup(ctx helpers.ResponseContext) {
 	db.AddChat(db.Chat{Id: ctx.Message.Chat.ID, Title: ctx.Message.Chat.Title})
 
 	if ctx.Message.MediaGroupID != "" && ctx.Message.MediaGroupID == offendingMediaGroupId {
-		removeMessage(ctx.Bot, ctx.Message)
+		msgremoval.Remove(ctx.Bot, ctx.Message)
 	}
 
 	if allowed, shouldSuppressMock := filters.IsMessageAllowed(ctx); !allowed {
-		removeMessage(ctx.Bot, ctx.Message)
+		msgremoval.Remove(ctx.Bot, ctx.Message)
 		// Get ready to remove the entire album
 		offendingMediaGroupId = ctx.Message.MediaGroupID
 		if !shouldSuppressMock {
-			mockSender(ctx.Bot, ctx.Message.Chat.ID, ctx.Message.From)
+			msgremoval.MockUser(ctx.Bot, ctx.Message.Chat.ID, ctx.Message.From)
 		}
 	} else {
-		if ctx.Message.ForwardFromChat != nil {
-			forwardMemory = append(forwardMemory, newForwardMemoryItem(ctx.Message))
-		}
+		msgmem.Add(ctx.Message)
 	}
 }
 
@@ -151,15 +149,15 @@ func banChannelOfForwardedMessage(ctx helpers.ResponseContext, resp textResponde
 
 func removeMessagesFromNewlyBannedChannel(bot *tgbotapi.BotAPI, chanRec db.Channel) {
 	userNamesMockedSoFar := map[string]bool{}
-	for _, item := range forwardMemory {
-		if item.channelId != chanRec.Id {
+	for _, item := range msgmem.Get() {
+		if item.ForwardFromChat.ID != chanRec.Id {
 			continue
 		}
 
-		helpers.Send(bot, tgbotapi.NewDeleteMessage(item.groupChatId, item.messageId))
-		if !userNamesMockedSoFar[item.from.UserName] {
-			mockSender(bot, item.groupChatId, &item.from)
-			userNamesMockedSoFar[item.from.UserName] = true
+		helpers.Send(bot, tgbotapi.NewDeleteMessage(item.Chat.ID, item.MessageID))
+		if !userNamesMockedSoFar[item.From.UserName] {
+			msgremoval.MockUser(bot, item.Chat.ID, item.From)
+			userNamesMockedSoFar[item.From.UserName] = true
 		}
 	}
 }
@@ -168,9 +166,4 @@ const channelBanResponseText = "Этот канал забанен."
 
 func sendBanResponse(resp textResponder) {
 	resp.RespondTextf("", true, channelBanResponseText)
-}
-
-func removeMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-	helpers.Send(bot, tgbotapi.NewDeleteMessage(message.Chat.ID, message.MessageID))
-	db.RecordMessageRemoval(message)
 }

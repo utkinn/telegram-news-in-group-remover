@@ -1,4 +1,4 @@
-package main
+package msgremoval
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 
 var lastMockTimestampsPerChatId = make(map[int64]time.Time)
 
-func mockSender(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tgbotapi.User) {
+func MockUser(bot *tgbotapi.BotAPI, groupChatId int64, user *tgbotapi.User) {
 	lastMockAt, ok := lastMockTimestampsPerChatId[groupChatId]
 	if ok && time.Since(lastMockAt).Minutes() < 1 {
 		return
@@ -20,7 +20,7 @@ func mockSender(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tgbotapi.Us
 	lastMockTimestampsPerChatId[groupChatId] = time.Now()
 
 	stickerMessage := sendMockSticker(bot, groupChatId)
-	mockTextMessage := sendMockTextMessage(bot, groupChatId, newsSender)
+	mockTextMessage := sendMockTextMessage(bot, groupChatId, user)
 	mockCleanupQueue <- mock{messages: []*tgbotapi.Message{stickerMessage, mockTextMessage}, time: time.Now()}
 }
 
@@ -33,6 +33,7 @@ func sendMockSticker(bot *tgbotapi.BotAPI, groupChatId int64) *tgbotapi.Message 
 func sendMockTextMessage(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tgbotapi.User) *tgbotapi.Message {
 	senderFunnyName := db.GetNameForUser(newsSender)
 	mockTextMessageRequest := tgbotapi.NewMessage(groupChatId, fmt.Sprintf("%s, вспышка слева!", senderFunnyName))
+	mockTextMessageRequest.DisableNotification = true
 	if rand.Intn(100) <= 2 {
 		mockTextMessageRequest.Text = fmt.Sprintf("%v, вспышка _сверху_ 💥🔝 !", senderFunnyName)
 		mockTextMessageRequest.ParseMode = tgbotapi.ModeMarkdown
