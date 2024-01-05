@@ -1,6 +1,7 @@
 package db
 
 import (
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -37,6 +38,65 @@ func TestLoadEmpty(t *testing.T) {
 	}
 }
 
+func TestWarningOnUnnecessaryLoad(t *testing.T) {
+	oldWriter := log.Writer()
+	defer log.SetOutput(oldWriter)
+	logBuf := strings.Builder{}
+	log.SetOutput(&logBuf)
+
+	testDBFilePath := path.Join(t.TempDir(), "db.json")
+	testDB := database[int]{filename: testDBFilePath, data: []int{0, 1, 2}}
+
+	if err := os.WriteFile(testDBFilePath, []byte("[0,1,2]"), 0644); err != nil {
+		t.Fatalf("Failed to write to %v: %v", testDBFilePath, err)
+	}
+
+	testDB.load()
+
+	if !strings.Contains(logBuf.String(), "Warning: unnecessary loading of already loaded DB") {
+		t.Fatalf("Unexpected log output: %v", logBuf.String())
+	}
+}
+
+func TestLoadPanicsOnReadFail(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected database.load() to panic")
+		}
+		if !strings.Contains(r.(string), "Failed to read") {
+			t.Fatalf("Unexpected panic message: %v", r)
+		}
+	}()
+
+	funkyPermissionsFilePath := path.Join(t.TempDir(), "funky-permissions.json")
+	if err := os.WriteFile(funkyPermissionsFilePath, []byte("[0,1,2]"), 0000); err != nil {
+		t.Fatalf("Failed to create funky-permissions.json: %v", err)
+	}
+
+	testDB := database[int]{filename: funkyPermissionsFilePath}
+	testDB.load()
+}
+
+func TestLoadGarbage(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected database.load() to panic")
+		}
+		if !strings.Contains(r.(string), "Failed to unmarshal") {
+			t.Fatalf("Unexpected panic message: %v", r)
+		}
+	}()
+
+	testDBFilePath := path.Join(t.TempDir(), "db.json")
+	if err := os.WriteFile(testDBFilePath, []byte("garbage"), 0644); err != nil {
+		t.Fatalf("Failed to write to %v: %v", testDBFilePath, err)
+	}
+	testDB := database[int]{filename: testDBFilePath}
+	testDB.load()
+}
+
 func TestWrite(t *testing.T) {
 	testMutatingMethod(t, func(testDB *database[int]) {
 		testDB.data = []int{0, 1, 2}
@@ -44,20 +104,53 @@ func TestWrite(t *testing.T) {
 	}, "[0,1,2]")
 }
 
-func TestWritePanicsOnUnspecifiedFilename(t *testing.T) {
-	defer func() {
+type cyclicData struct {
+	V int
+	C *cyclicData
+}
+
+func TestWritePanic(t *testing.T) {
+	var expectedPanicSubstring string
+	handlePanic := func() {
 		r := recover()
 		if r == nil {
 			t.Fatal("Expected database.write() to panic")
 		}
-		if !strings.Contains(r.(string), "file name is not specified") {
+		if !strings.Contains(r.(string), expectedPanicSubstring) {
 			t.Fatalf("Unexpected panic message: %v", r)
 		}
-	}()
+	}
 
-	testDB := database[int]{}
-	testDB.data = []int{0, 1, 2}
-	testDB.write()
+	t.Run("unspecified file name", func(t *testing.T) {
+		expectedPanicSubstring = "Database file name is not specified"
+		defer handlePanic()
+
+		testDB := database[int]{data: []int{0, 1, 2}}
+		testDB.write()
+	})
+
+	t.Run("cyclic data", func(t *testing.T) {
+		expectedPanicSubstring = "Failed to marshal data"
+		defer handlePanic()
+
+		data := cyclicData{V: 1}
+		data.C = &data
+		testDB := database[cyclicData]{filename: path.Join(t.TempDir(), "db.json"), data: []cyclicData{data}}
+		testDB.write()
+	})
+
+	t.Run("unwritable file", func(t *testing.T) {
+		expectedPanicSubstring = "Failed to write"
+		defer handlePanic()
+
+		unwritableFilePath := path.Join(t.TempDir(), "unwritable.json")
+		if err := os.WriteFile(unwritableFilePath, []byte("[0,1,2]"), 0000); err != nil {
+			t.Fatalf("Failed to create unwritable.json: %v", err)
+		}
+
+		testDB := database[int]{filename: unwritableFilePath, data: []int{0, 1, 2}}
+		testDB.write()
+	})
 }
 
 func TestAdd(t *testing.T) {

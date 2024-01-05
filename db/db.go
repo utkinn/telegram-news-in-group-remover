@@ -24,11 +24,11 @@ func (db *database[T]) load() {
 		if os.IsNotExist(err) {
 			return
 		}
-		log.Fatalf("Failed to read %s: %s", db.filename, err.Error())
+		log.Panicf("Failed to read %s: %s", db.filename, err.Error())
 	}
 
 	if err = json.Unmarshal(content, &db.data); err != nil {
-		log.Fatalf("Failed to unmarshal the contents of %s: %s", db.filename, err.Error())
+		log.Panicf("Failed to unmarshal the contents of %s: %s", db.filename, err.Error())
 	}
 }
 
@@ -41,7 +41,7 @@ func (db *database[T]) write() {
 
 	content, err := json.Marshal(db.data)
 	if err != nil {
-		log.Fatalf("Failed to marshal banned channels: %s", err.Error())
+		log.Panicf("Failed to marshal data: %s", err.Error())
 	}
 
 	if err = os.WriteFile(db.filename, content, 0644); err != nil {
