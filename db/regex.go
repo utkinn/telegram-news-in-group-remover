@@ -22,11 +22,13 @@ func GetBannedRegexDB() *BannedRegexDB {
 
 func (db *BannedRegexDB) Ban(regex string) error {
 	_, err := regexp2.Compile(regex, regexp2.None)
-	if err == nil {
-		db.add(regex)
+	if err != nil {
+		return fmt.Errorf("failed to ban regex %v: %w", regex, err)
 	}
 
-	return fmt.Errorf("failed to ban regex %v: %w", regex, err)
+	db.add(regex)
+
+	return nil
 }
 
 func (db *BannedRegexDB) Get() []string {
