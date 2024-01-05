@@ -23,21 +23,22 @@ type MuteDB struct {
 	clock clock
 }
 
-var muteDb = MuteDB{database[mute]{filename: "mute.json"}, realClock{}}
+var muteDB = MuteDB{database[mute]{filename: "mute.json"}, realClock{}}
 
 func init() {
-	muteDb.load()
+	muteDB.load()
 }
 
 func GetMuteDB() *MuteDB {
-	return &muteDb
+	return &muteDB
 }
 
 func (db *MuteDB) MuteUser(userName string, duration time.Duration) {
 	db.add(mute{
-		UserName: userName,
-		StartAt:  db.clock.Now(),
-		EndAt:    db.clock.Now().Add(duration),
+		UserName:    userName,
+		StartAt:     db.clock.Now(),
+		EndAt:       db.clock.Now().Add(duration),
+		IsAnnounced: false,
 	})
 }
 
@@ -47,11 +48,13 @@ func (db *MuteDB) UnmuteUser(userName string) {
 
 func (db *MuteDB) GetStatusForUser(userName string) (muted, announced bool) {
 	db.cleanUpExpiredMutes()
+
 	for _, item := range db.data {
 		if item.UserName == userName {
 			return true, item.IsAnnounced
 		}
 	}
+
 	return false, false
 }
 
@@ -65,5 +68,6 @@ func (db *MuteDB) MarkMuteAnnounced(userName string) {
 			db.data[i].IsAnnounced = true
 		}
 	}
+
 	db.write()
 }

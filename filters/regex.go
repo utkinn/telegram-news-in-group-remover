@@ -15,21 +15,26 @@ func init() {
 
 type regexFilter struct{}
 
-func (f *regexFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
+func (*regexFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
 	regexes := db.GetBannedRegexDB().Get()
+
 	for _, regex := range regexes {
 		caseInsensitiveRegex, err := regexp2.Compile(regex, regexp2.IgnoreCase)
 		if err != nil {
 			log.Printf("Failed to compile regex %s: %v", caseInsensitiveRegex, err)
 			return true
 		}
+
 		textMatch, textErr := caseInsensitiveRegex.MatchString(ctx.Message.Text)
 		captionMatch, captionErr := caseInsensitiveRegex.MatchString(ctx.Message.Caption)
+
 		if captionMatch || textMatch {
 			return false
 		}
+
 		if err := errors.Join(textErr, captionErr); err != nil {
-			log.Printf("regexp %s MatchString failed: %v\nText to match against was: \"%s\"\nCaption to match against was: \"%s\"\n",
+			log.Printf("regexp %s MatchString failed: %v\nText to match against was: \"%s\"\n"+
+				"Caption to match against was: \"%s\"\n",
 				regex, err, ctx.Message.Text, ctx.Message.Caption)
 		}
 	}
@@ -37,18 +42,20 @@ func (f *regexFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
 	return true
 }
 
-func (f *regexFilter) ScrutinyModeOnly() bool {
+func (*regexFilter) ScrutinyModeOnly() bool {
 	return true
 }
 
-func (f *regexFilter) ShouldSuppressMock() bool {
+func (*regexFilter) ShouldSuppressMock() bool {
 	return false
 }
 
-func (f *regexFilter) Description() Description {
+func (*regexFilter) Description() Description {
 	return Description{
 		ID:   "regex",
 		Name: "Регулярные выражения",
-		Desc: "Блокирует сообщения, текст которых совпадает с как минимум одным регулярным выражением из запретного списка (/listregex). Команды: /banregex, /unbanregex",
+		Desc: "Блокирует сообщения, текст которых совпадает " +
+			"с как минимум одным регулярным выражением из запретного списка (/listregex). " +
+			"Команды: /banregex, /unbanregex",
 	}
 }

@@ -12,13 +12,16 @@ type mock struct {
 	time     time.Time
 }
 
-var mockCleanupQueue = make(chan mock, 100)
+const cleanupQueueSize = 100
+
+var mockCleanupQueue = make(chan mock, cleanupQueueSize)
 
 const mockCleanupDelay = 2 * time.Minute
 
 func MockCleaner(bot *tgbotapi.BotAPI) {
 	for m := range mockCleanupQueue {
 		time.Sleep(mockCleanupDelay - (time.Since(m.time)))
+
 		for _, msg := range m.messages {
 			helpers.Send(bot, tgbotapi.NewDeleteMessage(msg.Chat.ID, msg.MessageID))
 		}

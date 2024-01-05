@@ -6,7 +6,7 @@ import (
 )
 
 func TestScrutinyDBAdd(t *testing.T) {
-	db := ScrutinyDB{
+	database := ScrutinyDB{
 		database[string]{
 			filename: path.Join(t.TempDir(), "scrutiny.json"),
 			data:     []string{},
@@ -15,27 +15,29 @@ func TestScrutinyDBAdd(t *testing.T) {
 
 	userName := "testUserName"
 
-	db.Add(userName)
+	database.Add(userName)
 
-	if !db.IsUnderScrutiny(userName) {
+	if !database.IsUnderScrutiny(userName) {
 		t.Errorf("Expected username %s to be under scrutiny", userName)
 	}
 
 	// Test duplicates
-	db.Add(userName)
-	if len(db.data) != 1 {
+	database.Add(userName)
+
+	if len(database.data) != 1 {
 		t.Errorf("Expected only one entry in the database")
 	}
 
 	// Test "@" trimming
-	db.Add("@" + userName)
-	if len(db.data) != 1 {
+	database.Add("@" + userName)
+
+	if len(database.data) != 1 {
 		t.Errorf("Expected only one entry in the database")
 	}
 }
 
 func TestScrutinyDBRemove(t *testing.T) {
-	db := ScrutinyDB{
+	database := ScrutinyDB{
 		database[string]{
 			filename: path.Join(t.TempDir(), "scrutiny.json"),
 			data:     []string{"testUserName", "anotherUserName", "yetAnotherUserName"},
@@ -44,18 +46,18 @@ func TestScrutinyDBRemove(t *testing.T) {
 
 	t.Run("Remove existing username", func(t *testing.T) {
 		userName := "testUserName"
-		removed := db.Remove(userName)
+		removed := database.Remove(userName)
 		if !removed {
 			t.Errorf("Expected return value of db.Remove(%#v) to be true", userName)
 		}
-		if db.IsUnderScrutiny(userName) {
+		if database.IsUnderScrutiny(userName) {
 			t.Errorf("Expected userName %s to be removed from scrutiny", userName)
 		}
 	})
 
 	t.Run("Remove non-existing username", func(t *testing.T) {
 		userName := "nonExistingUserName"
-		removed := db.Remove(userName)
+		removed := database.Remove(userName)
 		if removed {
 			t.Errorf("Expected return value of db.Remove(%#v) to be false", userName)
 		}
@@ -63,11 +65,11 @@ func TestScrutinyDBRemove(t *testing.T) {
 
 	t.Run("Remove username with '@' prefix", func(t *testing.T) {
 		userName := "@anotherUserName"
-		removed := db.Remove(userName)
+		removed := database.Remove(userName)
 		if !removed {
 			t.Errorf("Expected return value of db.Remove(%#v) to be true", userName)
 		}
-		if db.IsUnderScrutiny(userName) {
+		if database.IsUnderScrutiny(userName) {
 			t.Errorf("Expected userName %s to be removed from scrutiny", userName)
 		}
 	})

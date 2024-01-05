@@ -17,7 +17,8 @@ type Description struct {
 }
 
 // Use this notice in Filter.Description to indicate that a certain filter is unstable.
-const unstableNotice = "\n      _Этот фильтр экспериментален и может работать нестабильно, с большим количеством ложных срабатываний. Не забывайте про команду /filteroff._"
+const unstableNotice = "\n      _Этот фильтр экспериментален и может работать нестабильно, " +
+	"с большим количеством ложных срабатываний. Не забывайте про команду /filteroff._"
 
 var filters []Filter
 
@@ -35,18 +36,23 @@ func ValidID(id string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
 func IsMessageAllowed(ctx helpers.ResponseContext) (allowed, suppressMock bool) {
 	senderIsUnderScrutiny := db.GetScrutinyDB().IsUnderScrutiny(ctx.Message.From.UserName)
-	for _, f := range filters {
-		if !db.GetFilterToggleDB().IsFilterEnabled(f.Description().ID) || f.ScrutinyModeOnly() && !senderIsUnderScrutiny {
+
+	for _, filter := range filters {
+		isFilterEnabled := db.GetFilterToggleDB().IsFilterEnabled(filter.Description().ID)
+		if !isFilterEnabled || (filter.ScrutinyModeOnly() && !senderIsUnderScrutiny) {
 			continue
 		}
-		if !f.IsMessageAllowed(ctx) {
-			return false, f.ShouldSuppressMock()
+
+		if !filter.IsMessageAllowed(ctx) {
+			return false, filter.ShouldSuppressMock()
 		}
 	}
+
 	return true, false
 }

@@ -10,22 +10,23 @@ func init() {
 
 type storiesFilter struct{}
 
-func (s *storiesFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
+func (*storiesFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
 	return ctx.Message.Story == nil
 }
 
-func (s *storiesFilter) ScrutinyModeOnly() bool {
+func (*storiesFilter) ScrutinyModeOnly() bool {
 	return true
 }
 
-func (s *storiesFilter) ShouldSuppressMock() bool {
+func (*storiesFilter) ShouldSuppressMock() bool {
 	return false
 }
 
-func (s *storiesFilter) Description() Description {
+func (*storiesFilter) Description() Description {
 	return Description{
 		ID:   "stories",
 		Name: "Истории",
-		Desc: "Запрещает пересылку всех историй. Фильтрация историй по каналам невозможна из-за текущих ограничений API Telegram.",
+		Desc: "Запрещает пересылку всех историй. " +
+			"Фильтрация историй по каналам невозможна из-за текущих ограничений API Telegram.",
 	}
 }

@@ -2,38 +2,43 @@ package db
 
 type AnnouncementSubscription struct {
 	UserName string
-	ChatId   int64
+	ChatID   int64 `json:"ChatId"`
 }
 
 type AnnouncementSubscriptionDB struct {
 	database[AnnouncementSubscription]
 }
 
-var announcementsDb = AnnouncementSubscriptionDB{database[AnnouncementSubscription]{filename: "announcement-subscriptions.json"}}
+var announcementsDB = AnnouncementSubscriptionDB{
+	database[AnnouncementSubscription]{
+		filename: "announcement-subscriptions.json",
+	},
+}
 
 func init() {
-	announcementsDb.load()
+	announcementsDB.load()
 }
 
 func GetAnnouncementSubscriptionDB() *AnnouncementSubscriptionDB {
-	return &announcementsDb
+	return &announcementsDB
 }
 
-func (db *AnnouncementSubscriptionDB) GetChatIdsOfSubscribedAdmins() []int64 {
+func (db *AnnouncementSubscriptionDB) GetChatIDsOfSubscribedAdmins() []int64 {
 	ids := make([]int64, len(db.data))
 	for i, sub := range db.data {
-		ids[i] = sub.ChatId
+		ids[i] = sub.ChatID
 	}
+
 	return ids
 }
 
-func (db *AnnouncementSubscriptionDB) Subscribe(chatId int64, userName string) {
+func (db *AnnouncementSubscriptionDB) Subscribe(chatID int64, userName string) {
 	db.addNoDupe(AnnouncementSubscription{
 		UserName: userName,
-		ChatId:   chatId,
-	}, func(a, b AnnouncementSubscription) bool { return a.ChatId == b.ChatId })
+		ChatID:   chatID,
+	}, func(a, b AnnouncementSubscription) bool { return a.ChatID == b.ChatID })
 }
 
-func (db *AnnouncementSubscriptionDB) Unsubscribe(chatId int64) {
-	db.filterInPlace(func(ann AnnouncementSubscription) bool { return ann.ChatId != chatId })
+func (db *AnnouncementSubscriptionDB) Unsubscribe(chatID int64) {
+	db.filterInPlace(func(ann AnnouncementSubscription) bool { return ann.ChatID != chatID })
 }

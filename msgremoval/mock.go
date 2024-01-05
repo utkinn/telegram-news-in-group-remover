@@ -10,33 +10,37 @@ import (
 	"github.com/utkinn/telegram-news-in-group-remover/helpers"
 )
 
-var lastMockTimestampsPerChatId = make(map[int64]time.Time)
+var lastMockTimestampsPerChatID = make(map[int64]time.Time)
 
-func MockUser(bot *tgbotapi.BotAPI, groupChatId int64, user *tgbotapi.User) {
-	lastMockAt, ok := lastMockTimestampsPerChatId[groupChatId]
+func MockUser(bot *tgbotapi.BotAPI, groupChatID int64, user *tgbotapi.User) {
+	lastMockAt, ok := lastMockTimestampsPerChatID[groupChatID]
 	if ok && time.Since(lastMockAt).Minutes() < 1 {
 		return
 	}
-	lastMockTimestampsPerChatId[groupChatId] = time.Now()
 
-	stickerMessage := sendMockSticker(bot, groupChatId)
-	mockTextMessage := sendMockTextMessage(bot, groupChatId, user)
+	lastMockTimestampsPerChatID[groupChatID] = time.Now()
+
+	stickerMessage := sendMockSticker(bot, groupChatID)
+	mockTextMessage := sendMockTextMessage(bot, groupChatID, user)
 	mockCleanupQueue <- mock{messages: []*tgbotapi.Message{stickerMessage, mockTextMessage}, time: time.Now()}
 }
 
-func sendMockSticker(bot *tgbotapi.BotAPI, groupChatId int64) *tgbotapi.Message {
-	stickerMessageRequest := tgbotapi.NewSticker(groupChatId, db.GetStickerDB().GetRandomMockStickerFileId())
+func sendMockSticker(bot *tgbotapi.BotAPI, groupChatID int64) *tgbotapi.Message {
+	stickerMessageRequest := tgbotapi.NewSticker(groupChatID, db.GetStickerDB().GetRandomMockStickerFileID())
 	stickerMessageRequest.DisableNotification = true
+
 	return helpers.Send(bot, stickerMessageRequest)
 }
 
-func sendMockTextMessage(bot *tgbotapi.BotAPI, groupChatId int64, newsSender *tgbotapi.User) *tgbotapi.Message {
+func sendMockTextMessage(bot *tgbotapi.BotAPI, groupChatID int64, newsSender *tgbotapi.User) *tgbotapi.Message {
 	senderFunnyName := db.GetNameReplacementDB().GetNameForUser(newsSender)
-	mockTextMessageRequest := tgbotapi.NewMessage(groupChatId, fmt.Sprintf("%s, вспышка слева!", senderFunnyName))
+	mockTextMessageRequest := tgbotapi.NewMessage(groupChatID, fmt.Sprintf("%s, вспышка слева!", senderFunnyName))
 	mockTextMessageRequest.DisableNotification = true
-	if rand.Intn(100) <= 2 {
+
+	if rand.Intn(100) <= 2 { //nolint:gomnd
 		mockTextMessageRequest.Text = fmt.Sprintf("%v, вспышка _сверху_ 💥🔝 !", senderFunnyName)
 		mockTextMessageRequest.ParseMode = tgbotapi.ModeMarkdown
 	}
+
 	return helpers.Send(bot, mockTextMessageRequest)
 }

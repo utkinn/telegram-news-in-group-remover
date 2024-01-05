@@ -8,16 +8,16 @@ type nameReplacement struct {
 	Username, NameReplacement string
 }
 
-var nameReplacementsDb = NameReplacementDB{database[nameReplacement]{
+var nameReplacementsDB = NameReplacementDB{database[nameReplacement]{
 	filename: "name-replacements.json",
 }}
 
 func init() {
-	nameReplacementsDb.load()
+	nameReplacementsDB.load()
 }
 
 func GetNameReplacementDB() *NameReplacementDB {
-	return &nameReplacementsDb
+	return &nameReplacementsDB
 }
 
 func (db *NameReplacementDB) GetNameForUser(user *tgbotapi.User) string {
@@ -26,5 +26,6 @@ func (db *NameReplacementDB) GetNameForUser(user *tgbotapi.User) string {
 			return repl.NameReplacement
 		}
 	}
+
 	return user.FirstName
 }

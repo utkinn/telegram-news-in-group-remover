@@ -11,22 +11,23 @@ func init() {
 
 type channelFilter struct{}
 
-func (f *channelFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
+func (*channelFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
 	if ctx.Message.ForwardFromChat == nil {
 		return true
 	}
+
 	return !db.GetBannedChannelDB().IsBanned(ctx.Message.ForwardFromChat.ID)
 }
 
-func (f *channelFilter) ScrutinyModeOnly() bool {
+func (*channelFilter) ScrutinyModeOnly() bool {
 	return false
 }
 
-func (f *channelFilter) ShouldSuppressMock() bool {
+func (*channelFilter) ShouldSuppressMock() bool {
 	return false
 }
 
-func (f *channelFilter) Description() Description {
+func (*channelFilter) Description() Description {
 	return Description{
 		ID:   "channels",
 		Name: "Пересылки из забаненных каналов",

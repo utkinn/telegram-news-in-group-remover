@@ -1,48 +1,52 @@
 package db
 
 type Chat struct {
-	Id    int64
+	ID    int64 `json:"Id"`
 	Title string
 }
 
 type ChatDB struct{ database[Chat] }
 
-var chatsDb = ChatDB{database[Chat]{
+var chatsDB = ChatDB{database[Chat]{
 	filename: "group-chats.json",
 }}
 
 func init() {
-	chatsDb.load()
+	chatsDB.load()
 }
 
 func GetChatsDB() *ChatDB {
-	return &chatsDb
+	return &chatsDB
 }
 
 func (db *ChatDB) Get() []Chat {
 	return db.data
 }
 
-func (db *ChatDB) GetIdByOrdinal(num int) (int64, bool) {
+func (db *ChatDB) GetIDByOrdinal(num int) (int64, bool) {
 	if num < 1 || num > len(db.data) {
 		return 0, false
 	}
-	return db.data[num-1].Id, true
+
+	return db.data[num-1].ID, true
 }
 
 func (db *ChatDB) Add(chat Chat) {
-	db.data = removeDuplicateChatsById(append(db.data, chat))
+	db.data = removeDuplicateChatsByID(append(db.data, chat))
 	db.write()
 }
 
-func removeDuplicateChatsById(sliceList []Chat) []Chat {
+func removeDuplicateChatsByID(sliceList []Chat) []Chat {
 	allKeys := make(map[int64]bool)
 	list := []Chat{}
+
 	for _, item := range sliceList {
-		if _, value := allKeys[item.Id]; !value {
-			allKeys[item.Id] = true
+		if _, value := allKeys[item.ID]; !value {
+			allKeys[item.ID] = true
+
 			list = append(list, item)
 		}
 	}
+
 	return list
 }

@@ -8,16 +8,16 @@ type removal struct {
 	Message tgbotapi.Message
 }
 
-var removalsDb = RemovedMessageDB{database[removal]{
+var removalsDB = RemovedMessageDB{database[removal]{
 	filename: "removals.json",
 }}
 
 func GetRemovedMessageDB() *RemovedMessageDB {
-	return &removalsDb
+	return &removalsDB
 }
 
 func init() {
-	removalsDb.load()
+	removalsDB.load()
 }
 
 func (db *RemovedMessageDB) Add(message *tgbotapi.Message) {

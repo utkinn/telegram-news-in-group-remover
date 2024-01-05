@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -36,18 +35,23 @@ func main() {
 	}
 }
 
+const networkRetryDuration = time.Second * 10
+
 func createBotWithNetworkRetry() *tgbotapi.BotAPI {
 	var bot *tgbotapi.BotAPI
-	err := errors.New("")
+
+	err := errors.New("") //nolint:goerr113
 	for err != nil {
 		bot, err = tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
 		if err != nil && !strings.Contains(err.Error(), "network is unreachable") {
 			panic(err)
 		}
+
 		if err != nil {
-			time.Sleep(time.Second * 10)
+			time.Sleep(networkRetryDuration)
 		}
 	}
+
 	return bot
 }
 
@@ -56,12 +60,12 @@ func notifyRestart(bot *tgbotapi.BotAPI) {
 		return
 	}
 
-	superAdminChatId := db.GetSuperAdminChatId()
-	if superAdminChatId == db.SuperAdminChatIdNotSet {
+	superAdminChatID := db.GetSuperAdminChatID()
+	if superAdminChatID == db.SuperAdminChatIDNotSet {
 		return
 	}
 
-	msg := tgbotapi.NewMessage(superAdminChatId, "_Бот перезапущен_")
+	msg := tgbotapi.NewMessage(superAdminChatID, "_Бот перезапущен_")
 	msg.ParseMode = tgbotapi.ModeMarkdown
 	msg.DisableNotification = true
 	helpers.Send(bot, msg)
@@ -102,7 +106,7 @@ func handleMessageToBot(
 	adminDB *db.AdminDB,
 ) {
 	if ctx.Message.Sticker != nil {
-		fmt.Println(ctx.Message.Sticker.FileID)
+		log.Printf("Received sticker with File ID %v\n", ctx.Message.Sticker.FileID)
 	}
 
 	if !adminDB.IsAdmin(ctx.Message.From.UserName) {
@@ -121,19 +125,20 @@ func handleMessageToBot(
 	}
 }
 
-var offendingMediaGroupId string
+var offendingMediaGroupID string
 
 func handleMessageToGroup(ctx helpers.ResponseContext) {
-	db.GetChatsDB().Add(db.Chat{Id: ctx.Message.Chat.ID, Title: ctx.Message.Chat.Title})
+	db.GetChatsDB().Add(db.Chat{ID: ctx.Message.Chat.ID, Title: ctx.Message.Chat.Title})
 
-	if ctx.Message.MediaGroupID != "" && ctx.Message.MediaGroupID == offendingMediaGroupId {
+	if ctx.Message.MediaGroupID != "" && ctx.Message.MediaGroupID == offendingMediaGroupID {
 		msgremoval.Remove(ctx.Bot, ctx.Message)
 	}
 
 	if allowed, shouldSuppressMock := filters.IsMessageAllowed(ctx); !allowed {
 		msgremoval.Remove(ctx.Bot, ctx.Message)
 		// Get ready to remove the entire album
-		offendingMediaGroupId = ctx.Message.MediaGroupID
+		offendingMediaGroupID = ctx.Message.MediaGroupID
+
 		if !shouldSuppressMock {
 			msgremoval.MockUser(ctx.Bot, ctx.Message.Chat.ID, ctx.Message.From)
 		}
@@ -146,7 +151,9 @@ func banChannelOfForwardedMessage(ctx helpers.ResponseContext, resp textResponde
 	if ctx.Message.ForwardFromChat == nil {
 		return
 	}
-	channelRecord := db.Channel{Id: ctx.Message.ForwardFromChat.ID, Title: ctx.Message.ForwardFromChat.Title}
+
+	channelRecord := db.Channel{ID: ctx.Message.ForwardFromChat.ID, Title: ctx.Message.ForwardFromChat.Title}
+
 	db.GetBannedChannelDB().Ban(channelRecord)
 	removeMessagesFromNewlyBannedChannel(ctx.Bot, channelRecord)
 	sendBanResponse(resp)
@@ -154,14 +161,17 @@ func banChannelOfForwardedMessage(ctx helpers.ResponseContext, resp textResponde
 
 func removeMessagesFromNewlyBannedChannel(bot *tgbotapi.BotAPI, chanRec db.Channel) {
 	userNamesMockedSoFar := map[string]bool{}
+
 	for _, item := range msgmem.Get() {
-		if item.ForwardFromChat.ID != chanRec.Id {
+		if item.ForwardFromChat.ID != chanRec.ID {
 			continue
 		}
 
 		helpers.Send(bot, tgbotapi.NewDeleteMessage(item.Chat.ID, item.MessageID))
+
 		if !userNamesMockedSoFar[item.From.UserName] {
 			msgremoval.MockUser(bot, item.Chat.ID, item.From)
+
 			userNamesMockedSoFar[item.From.UserName] = true
 		}
 	}

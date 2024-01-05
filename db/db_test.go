@@ -10,9 +10,10 @@ import (
 
 func TestLoad(t *testing.T) {
 	testDBFilePath := path.Join(t.TempDir(), "db.json")
-	if err := os.WriteFile(testDBFilePath, []byte("[0,1,2]"), 0644); err != nil {
+	if err := os.WriteFile(testDBFilePath, []byte("[0,1,2]"), 0600); err != nil {
 		t.Fatalf("Failed to write to %v: %v", testDBFilePath, err)
 	}
+
 	testDB := database[int]{filename: testDBFilePath}
 
 	testDB.load()
@@ -20,6 +21,7 @@ func TestLoad(t *testing.T) {
 	if len(testDB.data) != 3 {
 		t.Fatalf("Unexpected len(testDB.data): want 3, got %v", len(testDB.data))
 	}
+
 	for i, n := range testDB.data {
 		if n != i {
 			t.Fatalf("Unexpected member at index %v: want %v, got %v", i, i, n)
@@ -40,14 +42,15 @@ func TestLoadEmpty(t *testing.T) {
 
 func TestWarningOnUnnecessaryLoad(t *testing.T) {
 	oldWriter := log.Writer()
-	defer log.SetOutput(oldWriter)
 	logBuf := strings.Builder{}
+
+	defer log.SetOutput(oldWriter)
 	log.SetOutput(&logBuf)
 
 	testDBFilePath := path.Join(t.TempDir(), "db.json")
 	testDB := database[int]{filename: testDBFilePath, data: []int{0, 1, 2}}
 
-	if err := os.WriteFile(testDBFilePath, []byte("[0,1,2]"), 0644); err != nil {
+	if err := os.WriteFile(testDBFilePath, []byte("[0,1,2]"), 0600); err != nil {
 		t.Fatalf("Failed to write to %v: %v", testDBFilePath, err)
 	}
 
@@ -60,12 +63,13 @@ func TestWarningOnUnnecessaryLoad(t *testing.T) {
 
 func TestLoadPanicsOnReadFail(t *testing.T) {
 	defer func() {
-		r := recover()
-		if r == nil {
+		rec := recover()
+		if rec == nil {
 			t.Fatal("Expected database.load() to panic")
 		}
-		if !strings.Contains(r.(string), "Failed to read") {
-			t.Fatalf("Unexpected panic message: %v", r)
+
+		if !strings.Contains(rec.(string), "Failed to read") {
+			t.Fatalf("Unexpected panic message: %v", rec)
 		}
 	}()
 
@@ -80,19 +84,21 @@ func TestLoadPanicsOnReadFail(t *testing.T) {
 
 func TestLoadGarbage(t *testing.T) {
 	defer func() {
-		r := recover()
-		if r == nil {
+		rec := recover()
+		if rec == nil {
 			t.Fatal("Expected database.load() to panic")
 		}
-		if !strings.Contains(r.(string), "Failed to unmarshal") {
-			t.Fatalf("Unexpected panic message: %v", r)
+
+		if !strings.Contains(rec.(string), "Failed to unmarshal") {
+			t.Fatalf("Unexpected panic message: %v", rec)
 		}
 	}()
 
 	testDBFilePath := path.Join(t.TempDir(), "db.json")
-	if err := os.WriteFile(testDBFilePath, []byte("garbage"), 0644); err != nil {
+	if err := os.WriteFile(testDBFilePath, []byte("garbage"), 0600); err != nil {
 		t.Fatalf("Failed to write to %v: %v", testDBFilePath, err)
 	}
+
 	testDB := database[int]{filename: testDBFilePath}
 	testDB.load()
 }
@@ -111,13 +117,15 @@ type cyclicData struct {
 
 func TestWritePanic(t *testing.T) {
 	var expectedPanicSubstring string
+
 	handlePanic := func() {
-		r := recover()
-		if r == nil {
+		rec := recover() //nolint:revive
+		if rec == nil {
 			t.Fatal("Expected database.write() to panic")
 		}
-		if !strings.Contains(r.(string), expectedPanicSubstring) {
-			t.Fatalf("Unexpected panic message: %v", r)
+
+		if !strings.Contains(rec.(string), expectedPanicSubstring) {
+			t.Fatalf("Unexpected panic message: %v", rec)
 		}
 	}
 
@@ -133,7 +141,7 @@ func TestWritePanic(t *testing.T) {
 		expectedPanicSubstring = "Failed to marshal data"
 		defer handlePanic()
 
-		data := cyclicData{V: 1}
+		data := cyclicData{V: 1} //nolint:exhaustruct
 		data.C = &data
 		testDB := database[cyclicData]{filename: path.Join(t.TempDir(), "db.json"), data: []cyclicData{data}}
 		testDB.write()
@@ -184,25 +192,26 @@ func TestFilterInPlace(t *testing.T) {
 func TestAny(t *testing.T) {
 	no1 := database[int]{data: []int{2, 3, 4}}
 	has1 := database[int]{data: []int{1, 0}}
-	cb := func(item int) bool { return item == 1 }
+	callback := func(item int) bool { return item == 1 }
 
-	if no1.any(cb) {
+	if no1.any(callback) {
 		t.Fatal("database.any() returned true incorrectly")
 	}
-	if !has1.any(cb) {
+
+	if !has1.any(callback) {
 		t.Fatal("database.any() returned false incorrectly")
 	}
 }
 
 func TestFirst(t *testing.T) {
-	db := database[int]{data: []int{1, 1, 4, 6, 1, 1}}
+	database := database[int]{data: []int{1, 1, 4, 6, 1, 1}}
 
-	result, found := db.first(func(item int) bool { return item%2 == 0 })
+	result, found := database.first(func(item int) bool { return item%2 == 0 })
 	if result != 4 || !found {
 		t.Fatalf("want (4, true), got (%v, %v)", result, found)
 	}
 
-	result, found = db.first(func(item int) bool { return item == -1 })
+	result, found = database.first(func(item int) bool { return item == -1 })
 	if found {
 		t.Fatalf("want (_, false), got (%v, %v)", result, found)
 	}
@@ -218,6 +227,7 @@ func testMutatingMethod(t *testing.T, act func(testDB *database[int]), wantedCon
 	if err != nil {
 		t.Fatalf("Failed to read %v: %v", testDBFilePath, err)
 	}
+
 	if string(contents) != wantedContent {
 		t.Fatalf("Unexpected json file content: want %v, got %v", wantedContent, contents)
 	}

@@ -7,7 +7,7 @@ import (
 )
 
 func TestGetNameForUserWorksWithReplacement(t *testing.T) {
-	db := NameReplacementDB{
+	database := NameReplacementDB{
 		database[nameReplacement]{
 			data: []nameReplacement{
 				{Username: "Alex123", NameReplacement: "Funny guy"},
@@ -16,13 +16,15 @@ func TestGetNameForUserWorksWithReplacement(t *testing.T) {
 	}
 
 	userWithReplacement := tgbotapi.User{UserName: "Alex123", FirstName: "Alex"}
-	name := db.GetNameForUser(&userWithReplacement)
+	name := database.GetNameForUser(&userWithReplacement)
+
 	if name != "Funny guy" {
 		t.Fatalf("Name replacement failed, got %v instead", name)
 	}
 
 	userWithoutReplacement := tgbotapi.User{UserName: "foobar", FirstName: "John"}
-	name = db.GetNameForUser(&userWithoutReplacement)
+	name = database.GetNameForUser(&userWithoutReplacement)
+
 	if name != "John" {
 		t.Fatalf("Name replacement failed, got %v instead", name)
 	}

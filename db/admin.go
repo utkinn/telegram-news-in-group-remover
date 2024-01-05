@@ -24,6 +24,7 @@ func (db *AdminDB) IsAdmin(nick string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 

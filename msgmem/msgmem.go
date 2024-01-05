@@ -11,11 +11,13 @@ func Add(m *tgbotapi.Message) {
 
 func Get() []*tgbotapi.Message {
 	result := []*tgbotapi.Message{}
+
 	for i := 0; i < len(messageMemory); i++ {
 		if messageMemory[i] != nil {
 			result = append(result, messageMemory[i])
 		}
 	}
+
 	return result
 }
 

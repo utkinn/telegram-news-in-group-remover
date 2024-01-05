@@ -13,34 +13,37 @@ func init() {
 	registerFilter(&muteFilter{})
 }
 
-type muteFilter struct {
-	bot *tgbotapi.BotAPI
-}
+type muteFilter struct{}
 
 //go:embed chill.png
 var chillPng []byte
 
-func (m *muteFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
+func (*muteFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
 	senderUserName := ctx.Message.From.UserName
+
 	muted, announced := db.GetMuteDB().GetStatusForUser(senderUserName)
 	if muted && !announced {
-		muteAnnouncement := tgbotapi.NewPhoto(ctx.Message.Chat.ID, tgbotapi.FileBytes{Name: "chill.png", Bytes: chillPng})
+		muteAnnouncement := tgbotapi.NewPhoto(
+			ctx.Message.Chat.ID,
+			tgbotapi.FileBytes{Name: "chill.png", Bytes: chillPng},
+		)
 		muteAnnouncement.Caption = fmt.Sprintf("@%v, иди паспи, не скажу насколько", senderUserName)
-		helpers.Send(m.bot, muteAnnouncement)
+		helpers.Send(ctx.Bot, muteAnnouncement)
 		db.GetMuteDB().MarkMuteAnnounced(senderUserName)
 	}
+
 	return !muted
 }
 
-func (m *muteFilter) ScrutinyModeOnly() bool {
+func (*muteFilter) ScrutinyModeOnly() bool {
 	return false
 }
 
-func (m *muteFilter) ShouldSuppressMock() bool {
+func (*muteFilter) ShouldSuppressMock() bool {
 	return true
 }
 
-func (m *muteFilter) Description() Description {
+func (*muteFilter) Description() Description {
 	return Description{
 		ID:   "mute",
 		Name: "STFU",

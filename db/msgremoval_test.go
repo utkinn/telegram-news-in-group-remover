@@ -9,7 +9,7 @@ import (
 )
 
 func TestRemovedMessageDBAdd(t *testing.T) {
-	db := RemovedMessageDB{
+	database := RemovedMessageDB{
 		database[removal]{
 			filename: path.Join(t.TempDir(), "test-removed-messages.json"),
 		},
@@ -20,13 +20,13 @@ func TestRemovedMessageDBAdd(t *testing.T) {
 		Text:      "Test message",
 	}
 
-	db.Add(&message)
+	database.Add(&message)
 
-	if len(db.data) != 1 {
-		t.Fatalf("Expected 1 message, got %v", len(db.data))
+	if len(database.data) != 1 {
+		t.Fatalf("Expected 1 message, got %v", len(database.data))
 	}
 
-	addedRemoval := db.data[0]
+	addedRemoval := database.data[0]
 	if !reflect.DeepEqual(addedRemoval.Message, message) {
 		t.Fatalf("Expected message %v, got %v", message, addedRemoval.Message)
 	}

@@ -1,21 +1,23 @@
 package db
 
 import (
+	"fmt"
+
 	"github.com/dlclark/regexp2"
 )
 
 type BannedRegexDB struct{ database[string] }
 
-var bannedRegexesDb = BannedRegexDB{database[string]{
+var bannedRegexesDB = BannedRegexDB{database[string]{
 	filename: "regexes.json",
 }}
 
 func init() {
-	bannedRegexesDb.load()
+	bannedRegexesDB.load()
 }
 
 func GetBannedRegexDB() *BannedRegexDB {
-	return &bannedRegexesDb
+	return &bannedRegexesDB
 }
 
 func (db *BannedRegexDB) Ban(regex string) error {
@@ -23,7 +25,8 @@ func (db *BannedRegexDB) Ban(regex string) error {
 	if err == nil {
 		db.add(regex)
 	}
-	return err
+
+	return fmt.Errorf("failed to ban regex %v: %w", regex, err)
 }
 
 func (db *BannedRegexDB) Get() []string {

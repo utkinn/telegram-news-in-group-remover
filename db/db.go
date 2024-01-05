@@ -2,6 +2,7 @@ package db
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 )
@@ -11,24 +12,28 @@ type database[T any] struct {
 	data     []T
 }
 
-// load reads the JSON file in the current working directory named database.filename and puts the parsed contents to database.data.
+// load reads the JSON file in the current working directory
+// named database.filename and puts the parsed contents to database.data.
 // If the file does not exist, the database is assumed to be empty.
 func (db *database[T]) load() {
 	if db.data != nil {
-		log.Printf("Warning: unnecessary loading of already loaded DB %v. Check init() functions in db source dir.\n", db.filename)
+		log.Printf("Warning: unnecessary loading of already loaded DB %v."+
+			"Check init() functions in db source dir.\n", db.filename)
 	}
 
 	var err error
 	content, err := os.ReadFile(db.filename)
+
 	if err != nil {
 		if os.IsNotExist(err) {
 			return
 		}
-		log.Panicf("Failed to read %s: %s", db.filename, err.Error())
+
+		panic(fmt.Sprintf("Failed to read %s: %s", db.filename, err.Error()))
 	}
 
 	if err = json.Unmarshal(content, &db.data); err != nil {
-		log.Panicf("Failed to unmarshal the contents of %s: %s", db.filename, err.Error())
+		panic(fmt.Sprintf("Failed to unmarshal the contents of %s: %s", db.filename, err.Error()))
 	}
 }
 
@@ -36,16 +41,16 @@ func (db *database[T]) load() {
 // The file name is specified by database.filename.
 func (db *database[T]) write() {
 	if db.filename == "" {
-		log.Panic("Database file name is not specified")
+		panic("Database file name is not specified")
 	}
 
 	content, err := json.Marshal(db.data)
 	if err != nil {
-		log.Panicf("Failed to marshal data: %s", err.Error())
+		panic(fmt.Sprintf("Failed to marshal data: %s", err.Error()))
 	}
 
-	if err = os.WriteFile(db.filename, content, 0644); err != nil {
-		log.Panicf("Failed to write %s: %s", db.filename, err.Error())
+	if err = os.WriteFile(db.filename, content, 0600); err != nil {
+		panic(fmt.Sprintf("Failed to write %s: %s", db.filename, err.Error()))
 	}
 }
 
@@ -63,6 +68,7 @@ func (db *database[T]) addNoDupe(item T, equal func(dbItem, newItem T) bool) {
 			return
 		}
 	}
+
 	db.add(item)
 }
 
@@ -75,9 +81,11 @@ func (db *database[T]) addOrReplace(item T, equal func(a, b T) bool) {
 		if equal(x, item) {
 			db.data[i] = item
 			db.write()
+
 			return
 		}
 	}
+
 	db.add(item)
 }
 
@@ -85,6 +93,7 @@ func (db *database[T]) addOrReplace(item T, equal func(a, b T) bool) {
 func (db *database[T]) filterInPlace(cb func(item T) bool) bool {
 	removedSomething := false
 	newData := make([]T, 0, len(db.data))
+
 	for _, item := range db.data {
 		if cb(item) {
 			newData = append(newData, item)
@@ -92,6 +101,7 @@ func (db *database[T]) filterInPlace(cb func(item T) bool) bool {
 			removedSomething = true
 		}
 	}
+
 	db.data = newData
 	db.write()
 
@@ -105,15 +115,17 @@ func (db *database[T]) any(cb func(item T) bool) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
 // first returns the first item that matches the predicate.
-func (db *database[T]) first(predicate func(item T) bool) (T, bool) {
+func (db *database[T]) first(predicate func(item T) bool) (T, bool) { //nolint:ireturn
 	for _, item := range db.data {
 		if predicate(item) {
 			return item, true
 		}
 	}
+
 	return *new(T), false
 }

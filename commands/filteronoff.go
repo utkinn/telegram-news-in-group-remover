@@ -23,17 +23,18 @@ func init() {
 }
 
 func filterOnOffCallback(ctx helpers.ResponseContext, newState bool) {
-	id := ctx.Message.CommandArguments()
-	if len(id) == 0 || strings.Contains(id, " ") {
-		ctx.SendSilentMarkdownFmt("_Нужен один аргумент — ID фильтра. Он указывается в квадратных скобках в выводе /filters._")
+	filterID := ctx.Message.CommandArguments()
+	if len(filterID) == 0 || strings.Contains(filterID, " ") {
+		ctx.SendSilentMarkdownFmt("_Нужен один аргумент — ID фильтра." +
+			" Он указывается в квадратных скобках в выводе /filters._")
 		return
 	}
 
-	if !filters.ValidID(id) {
+	if !filters.ValidID(filterID) {
 		ctx.SendSilentMarkdownFmt("_Неверный ID фильтра. Сверьтесь с выводом команды /filters._")
 		return
 	}
 
-	db.GetFilterToggleDB().SetFilterEnabled(id, newState)
+	db.GetFilterToggleDB().SetFilterEnabled(filterID, newState)
 	ctx.SendSilentMarkdownFmt("_Состояние фильтра обновлено._")
 }

@@ -9,17 +9,24 @@ import (
 
 func init() {
 	registerCommand(
-		newCommand("unscrutiny", "<ник> - Прекратить пристальное внимание за пользователем", func(ctx helpers.ResponseContext) {
-			userName := ctx.Message.CommandArguments()
-			if len(userName) == 0 || strings.Contains(userName, " ") {
-				ctx.SendSilentMarkdownFmt("_Нужен один аргумент — ник пользователя._")
-				return
-			}
-			if db.GetScrutinyDB().Remove(userName) {
-				ctx.SendSilentMarkdownFmt("*%s* выписан из списка _пристального присмотра_.", userName)
-			} else {
-				ctx.SendSilentMarkdownFmt("*%s* не было в списке _пристального присмотра_, но вычеркнуть я попытался.", userName)
-			}
-		}),
+		newCommand(
+			"unscrutiny",
+			"<ник> - Прекратить пристальное внимание за пользователем",
+			func(ctx helpers.ResponseContext) {
+				userName := ctx.Message.CommandArguments()
+				if len(userName) == 0 || strings.Contains(userName, " ") {
+					ctx.SendSilentMarkdownFmt("_Нужен один аргумент — ник пользователя._")
+					return
+				}
+				if db.GetScrutinyDB().Remove(userName) {
+					ctx.SendSilentMarkdownFmt("*%s* выписан из списка _пристального присмотра_.", userName)
+				} else {
+					ctx.SendSilentMarkdownFmt(
+						"*%s* не было в списке _пристального присмотра_, но вычеркнуть я попытался.",
+						userName,
+					)
+				}
+			},
+		),
 	)
 }

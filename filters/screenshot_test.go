@@ -20,6 +20,7 @@ func TestIsNotScreenshotRandomPhotos(t *testing.T) {
 	testScreenshotRecognition(t, "bald-dude", true)
 }
 
+//nolint:revive
 func testScreenshotRecognition(t *testing.T, screenshotName string, expectedResult bool) {
 	screenshotFile, err := os.Open(fmt.Sprintf("testdata/screenshots/%v.jpeg", screenshotName))
 	if err != nil {

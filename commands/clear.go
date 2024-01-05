@@ -11,7 +11,10 @@ func init() {
 	registerCommand(
 		newSuperAdminCommand("clear", "Разбанить все каналы", func(ctx helpers.ResponseContext) {
 			if ctx.Message.CommandArguments() != confirmation {
-				ctx.SendSilentMarkdownFmt("*Вы в своем уме?*\nОтправьте \"/clear %s\", если вы точно хотите начать хаос.", confirmation)
+				ctx.SendSilentMarkdownFmt(
+					"*Вы в своем уме?*\nОтправьте \"/clear %s\", если вы точно хотите начать хаос.",
+					confirmation,
+				)
 				return
 			}
 

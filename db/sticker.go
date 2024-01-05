@@ -19,7 +19,7 @@ type StickerDB struct {
 	random random
 }
 
-var stickersDb = StickerDB{
+var stickersDB = StickerDB{
 	database[string]{
 		filename: "stickers.json",
 	},
@@ -27,13 +27,13 @@ var stickersDb = StickerDB{
 }
 
 func init() {
-	stickersDb.load()
+	stickersDB.load()
 }
 
 func GetStickerDB() *StickerDB {
-	return &stickersDb
+	return &stickersDB
 }
 
-func (db *StickerDB) GetRandomMockStickerFileId() tgbotapi.FileID {
+func (db *StickerDB) GetRandomMockStickerFileID() tgbotapi.FileID {
 	return tgbotapi.FileID(db.data[db.random.Intn(len(db.data))])
 }

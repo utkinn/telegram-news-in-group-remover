@@ -32,15 +32,15 @@ func (s *screenshotFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
 	return !isScreenshot(*img)
 }
 
-func (s *screenshotFilter) ScrutinyModeOnly() bool {
+func (*screenshotFilter) ScrutinyModeOnly() bool {
 	return true
 }
 
-func (s *screenshotFilter) ShouldSuppressMock() bool {
+func (*screenshotFilter) ShouldSuppressMock() bool {
 	return false
 }
 
-func (s *screenshotFilter) Description() Description {
+func (*screenshotFilter) Description() Description {
 	return Description{
 		ID:   "screenshots",
 		Name: "Скриншоты",
@@ -48,22 +48,24 @@ func (s *screenshotFilter) Description() Description {
 	}
 }
 
-func (s *screenshotFilter) downloadScreenshot(ctx helpers.ResponseContext) (*image.Image, error) {
+func (*screenshotFilter) downloadScreenshot(ctx helpers.ResponseContext) (*image.Image, error) {
 	largestPhotoSize := ctx.Message.Photo[0]
+
 	screenshotFile, err := ctx.Bot.GetFile(tgbotapi.FileConfig{FileID: largestPhotoSize.FileID})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get screenshot Telegram file: %v", err)
+		return nil, fmt.Errorf("failed to get screenshot Telegram file: %w", err)
 	}
 
 	screenshotLink := screenshotFile.Link(ctx.Bot.Token)
-	resp, err := http.Get(screenshotLink)
+
+	resp, err := http.Get(screenshotLink) //nolint:gosec
 	if err != nil {
-		return nil, fmt.Errorf("failed to download screenshot: %v", err)
+		return nil, fmt.Errorf("failed to download screenshot: %w", err)
 	}
 
 	img, _, err := image.Decode(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode screenshot http response: %v", err)
+		return nil, fmt.Errorf("failed to decode screenshot http response: %w", err)
 	}
 
 	return &img, nil

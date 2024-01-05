@@ -7,11 +7,11 @@ import (
 )
 
 func TestFilterToggleDBIsFilterEnabled(t *testing.T) {
-	db := FilterToggleDB{
+	database := FilterToggleDB{
 		database[filterToggle]{
 			data: []filterToggle{
-				{Id: "enabled", Enabled: true},
-				{Id: "disabled", Enabled: false},
+				{ID: "enabled", Enabled: true},
+				{ID: "disabled", Enabled: false},
 			},
 		},
 	}
@@ -26,7 +26,7 @@ func TestFilterToggleDBIsFilterEnabled(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := db.IsFilterEnabled(test.id)
+		result := database.IsFilterEnabled(test.id)
 		if result != test.expected {
 			t.Errorf("Expected IsFilterEnabled(%q) to be %t, but got %t", test.id, test.expected, result)
 		}
@@ -34,12 +34,12 @@ func TestFilterToggleDBIsFilterEnabled(t *testing.T) {
 }
 
 func TestFilterToggleDBSetFilterEnabled(t *testing.T) {
-	db := FilterToggleDB{
+	database := FilterToggleDB{
 		database[filterToggle]{
 			filename: path.Join(t.TempDir(), "test-filter-toggles.json"),
 			data: []filterToggle{
-				{Id: "enabled", Enabled: true},
-				{Id: "disabled", Enabled: false},
+				{ID: "enabled", Enabled: true},
+				{ID: "disabled", Enabled: false},
 			},
 		},
 	}
@@ -50,24 +50,25 @@ func TestFilterToggleDBSetFilterEnabled(t *testing.T) {
 		expectedSnapshot []filterToggle
 	}{
 		{"enabled", false, []filterToggle{
-			{Id: "enabled", Enabled: false},
-			{Id: "disabled", Enabled: false},
+			{ID: "enabled", Enabled: false},
+			{ID: "disabled", Enabled: false},
 		}},
 		{"disabled", true, []filterToggle{
-			{Id: "enabled", Enabled: false},
-			{Id: "disabled", Enabled: true},
+			{ID: "enabled", Enabled: false},
+			{ID: "disabled", Enabled: true},
 		}},
 		{"nonexisting", true, []filterToggle{
-			{Id: "enabled", Enabled: false},
-			{Id: "disabled", Enabled: true},
-			{Id: "nonexisting", Enabled: true},
+			{ID: "enabled", Enabled: false},
+			{ID: "disabled", Enabled: true},
+			{ID: "nonexisting", Enabled: true},
 		}},
 	}
 
 	for _, test := range tests {
-		db.SetFilterEnabled(test.id, test.enabled)
-		if !reflect.DeepEqual(db.data, test.expectedSnapshot) {
-			t.Errorf("Expected db.data to be %v, but got %v", test.expectedSnapshot, db.data)
+		database.SetFilterEnabled(test.id, test.enabled)
+
+		if !reflect.DeepEqual(database.data, test.expectedSnapshot) {
+			t.Errorf("Expected db.data to be %v, but got %v", test.expectedSnapshot, database.data)
 		}
 	}
 }

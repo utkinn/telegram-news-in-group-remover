@@ -13,7 +13,8 @@ func init() {
 	registerCommand(
 		newCommand(
 			"stfu",
-			"Отправляет пользователя с указанным ником на принудительный отдых, запрещая писать ему в беседу на некоторое время",
+			"Отправляет пользователя с указанным ником на принудительный отдых, "+
+				"запрещая писать ему в беседу на некоторое время",
 			func(ctx helpers.ResponseContext) {
 				userName := ctx.Message.CommandArguments()
 				if len(userName) == 0 || strings.Contains(userName, " ") {
@@ -22,7 +23,8 @@ func init() {
 				}
 
 				db.GetMuteDB().MuteUser(userName, randomMuteDuration())
-				ctx.SendSilentMarkdownFmt("Пользователь с ником %s отправлен на принудительный отдых. Если захочется скостить срок — используй /unstfu.", userName)
+				ctx.SendSilentMarkdownFmt("Пользователь с ником %s отправлен на принудительный отдых. "+
+					"Если захочется скостить срок — используй /unstfu.", userName)
 			},
 		),
 	)

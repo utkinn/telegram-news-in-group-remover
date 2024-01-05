@@ -4,10 +4,10 @@ import "testing"
 
 type fakeRandom struct{}
 
-func (fakeRandom) Intn(n int) int { return 1 }
+func (fakeRandom) Intn(int) int { return 1 }
 
 func TestStickerDB_GetRandomMockStickerFileId(t *testing.T) {
-	db := StickerDB{
+	database := StickerDB{
 		database[string]{
 			data: []string{
 				"sticker1",
@@ -18,7 +18,7 @@ func TestStickerDB_GetRandomMockStickerFileId(t *testing.T) {
 		fakeRandom{},
 	}
 
-	fileID := db.GetRandomMockStickerFileId()
+	fileID := database.GetRandomMockStickerFileID()
 
 	if fileID != "sticker2" {
 		t.Errorf("Expected file ID to be sticker2, got %v", fileID)

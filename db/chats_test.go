@@ -8,38 +8,36 @@ import (
 
 func TestChatDBGet(t *testing.T) {
 	expected := []Chat{
-		{Id: 1, Title: "chat1"},
-		{Id: 2, Title: "chat2"},
-		{Id: 3, Title: "chat3"},
+		{ID: 1, Title: "chat1"},
+		{ID: 2, Title: "chat2"},
+		{ID: 3, Title: "chat3"},
 	}
 
-	db := ChatDB{
+	database := ChatDB{
 		database[Chat]{
 			data: expected,
 		},
 	}
 
-	chats := db.Get()
-
-	if !reflect.DeepEqual(chats, expected) {
+	if chats := database.Get(); !reflect.DeepEqual(chats, expected) {
 		t.Errorf("Expected chats %v, got %v", expected, chats)
 	}
 }
 
 func TestChatDBGetIdByOrdinal(t *testing.T) {
-	db := ChatDB{
+	database := ChatDB{
 		database[Chat]{
 			data: []Chat{
-				{Id: 1, Title: "chat1"},
-				{Id: 2, Title: "chat2"},
-				{Id: 3, Title: "chat3"},
+				{ID: 1, Title: "chat1"},
+				{ID: 2, Title: "chat2"},
+				{ID: 3, Title: "chat3"},
 			},
 		},
 	}
 
 	tests := []struct {
 		num          int
-		expectedId   int64
+		expectedID   int64
 		expectedBool bool
 	}{
 		{1, 1, true},
@@ -50,45 +48,46 @@ func TestChatDBGetIdByOrdinal(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		id, ok := db.GetIdByOrdinal(test.num)
-		if id != test.expectedId || ok != test.expectedBool {
+		id, ok := database.GetIDByOrdinal(test.num)
+		if id != test.expectedID || ok != test.expectedBool {
 			t.Errorf("Expected id = %d, ok = %t for #%d, but got id = %d, ok = %t",
-				test.expectedId, test.expectedBool, test.num, id, ok)
+				test.expectedID, test.expectedBool, test.num, id, ok)
 		}
 	}
 }
 
 func TestChatDBAdd(t *testing.T) {
-	db := ChatDB{
+	database := ChatDB{
 		database[Chat]{
 			filename: path.Join(t.TempDir(), "test-chats.json"),
 			data: []Chat{
-				{Id: 1, Title: "chat1"},
-				{Id: 2, Title: "chat2"},
-				{Id: 3, Title: "chat3"},
+				{ID: 1, Title: "chat1"},
+				{ID: 2, Title: "chat2"},
+				{ID: 3, Title: "chat3"},
 			},
 		},
 	}
 
-	newChat := Chat{Id: 4, Title: "chat4"}
+	newChat := Chat{ID: 4, Title: "chat4"}
 	expected := []Chat{
-		{Id: 1, Title: "chat1"},
-		{Id: 2, Title: "chat2"},
-		{Id: 3, Title: "chat3"},
-		{Id: 4, Title: "chat4"},
+		{ID: 1, Title: "chat1"},
+		{ID: 2, Title: "chat2"},
+		{ID: 3, Title: "chat3"},
+		{ID: 4, Title: "chat4"},
 	}
 
-	db.Add(newChat)
+	database.Add(newChat)
 
-	chats := db.Get()
+	chats := database.Get()
 
 	if !reflect.DeepEqual(chats, expected) {
 		t.Errorf("Expected chats %v, got %v", expected, chats)
 	}
 
 	// Test that duplicate chats with same ID are not added
-	db.Add(newChat)
-	chats = db.Get()
+	database.Add(newChat)
+	chats = database.Get()
+
 	if !reflect.DeepEqual(chats, expected) {
 		t.Errorf("Expected chats %v, got %v", expected, chats)
 	}

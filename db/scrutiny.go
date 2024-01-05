@@ -4,16 +4,16 @@ import "strings"
 
 type ScrutinyDB struct{ database[string] }
 
-var scrutinyDb = ScrutinyDB{database[string]{
+var scrutinyDB = ScrutinyDB{database[string]{
 	filename: "scrutiny.json",
 }}
 
 func GetScrutinyDB() *ScrutinyDB {
-	return &scrutinyDb
+	return &scrutinyDB
 }
 
 func init() {
-	scrutinyDb.load()
+	scrutinyDB.load()
 }
 
 func (db *ScrutinyDB) Add(nick string) {

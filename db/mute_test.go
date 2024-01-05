@@ -1,3 +1,4 @@
+//nolint:exhaustruct
 package db
 
 import (
@@ -12,7 +13,7 @@ type fakeClock struct{}
 func (fakeClock) Now() time.Time { return time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC) }
 
 func TestMuteDBUnmuteUser(t *testing.T) {
-	db := MuteDB{
+	database := MuteDB{
 		database[mute]{
 			filename: path.Join(t.TempDir(), "mute.json"),
 			data: []mute{
@@ -24,7 +25,7 @@ func TestMuteDBUnmuteUser(t *testing.T) {
 		fakeClock{},
 	}
 
-	db.UnmuteUser("user2")
+	database.UnmuteUser("user2")
 
 	expected := []mute{
 		{UserName: "user1"},
@@ -32,14 +33,14 @@ func TestMuteDBUnmuteUser(t *testing.T) {
 	}
 
 	// Check if the data in the MuteDB instance matches the expected result
-	if !reflect.DeepEqual(db.data, expected) {
-		t.Errorf("Expected data %v, got %v", expected, db.data)
+	if !reflect.DeepEqual(database.data, expected) {
+		t.Errorf("Expected data %v, got %v", expected, database.data)
 	}
 }
 
 func TestMuteDBGetStatusForUser(t *testing.T) {
 	nextHour := time.Now().Add(time.Hour)
-	db := MuteDB{
+	database := MuteDB{
 		database[mute]{
 			filename: path.Join(t.TempDir(), "mute.json"),
 			data: []mute{
@@ -63,7 +64,7 @@ func TestMuteDBGetStatusForUser(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		muted, announced := db.GetStatusForUser(test.userName)
+		muted, announced := database.GetStatusForUser(test.userName)
 		if muted != test.expectedMuted || announced != test.expectedAnnounced {
 			t.Errorf("For user %s, expected muted=%v, announced=%v; got muted=%v, announced=%v",
 				test.userName, test.expectedMuted, test.expectedAnnounced, muted, announced)
@@ -75,13 +76,13 @@ func TestMuteDBGetStatusForUser(t *testing.T) {
 		{UserName: "user1", IsAnnounced: true, EndAt: nextHour},
 		{UserName: "user2", IsAnnounced: false, EndAt: nextHour},
 	}
-	if !reflect.DeepEqual(db.data, expected) {
-		t.Errorf("Expected data %+v, got %+v", expected, db.data)
+	if !reflect.DeepEqual(database.data, expected) {
+		t.Errorf("Expected data %+v, got %+v", expected, database.data)
 	}
 }
 
 func TestMuteDBMarkMuteAnnounced(t *testing.T) {
-	db := MuteDB{
+	database := MuteDB{
 		database[mute]{
 			filename: path.Join(t.TempDir(), "mute.json"),
 			data: []mute{
@@ -91,21 +92,21 @@ func TestMuteDBMarkMuteAnnounced(t *testing.T) {
 		fakeClock{},
 	}
 
-	db.MarkMuteAnnounced("user1")
+	database.MarkMuteAnnounced("user1")
 
 	expected := []mute{
 		{UserName: "user1", IsAnnounced: true},
 	}
 
 	// Check if the data in the MuteDB instance matches the expected result
-	if !reflect.DeepEqual(db.data, expected) {
-		t.Errorf("Expected data %+v, got %+v", expected, db.data)
+	if !reflect.DeepEqual(database.data, expected) {
+		t.Errorf("Expected data %+v, got %+v", expected, database.data)
 	}
 }
 
 func TestMuteDBMuteUser(t *testing.T) {
 	clock := fakeClock{}
-	db := MuteDB{
+	database := MuteDB{
 		database[mute]{
 			filename: path.Join(t.TempDir(), "mute.json"),
 			data:     []mute{},
@@ -116,14 +117,14 @@ func TestMuteDBMuteUser(t *testing.T) {
 	userName := "user"
 	duration := time.Hour
 
-	db.MuteUser(userName, duration)
+	database.MuteUser(userName, duration)
 
 	expected := []mute{
 		{UserName: userName, StartAt: clock.Now(), EndAt: clock.Now().Add(duration)},
 	}
 
 	// Check if the data in the MuteDB instance matches the expected result
-	if !reflect.DeepEqual(db.data, expected) {
-		t.Errorf("Expected data %+v, got %+v", expected, db.data)
+	if !reflect.DeepEqual(database.data, expected) {
+		t.Errorf("Expected data %+v, got %+v", expected, database.data)
 	}
 }

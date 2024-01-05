@@ -22,11 +22,13 @@ func (r *testTextResponder) RespondTextf(parseMode string, silent bool, format s
 		silent:    silent,
 		message:   fmt.Sprintf(format, a...),
 	})
+
 	return nil
 }
 
 func TestRejectsUnknownUsersInBotChat(t *testing.T) {
 	var responder testTextResponder
+
 	handleMessageToBot(
 		newResponseContextStub("Chiga", "/clear"),
 		&responder,
@@ -37,6 +39,7 @@ func TestRejectsUnknownUsersInBotChat(t *testing.T) {
 	if len(responder) != 1 {
 		t.Fatalf("Want 1 response, got %v", len(responder))
 	}
+
 	if responder[0].message != goAway {
 		t.Fatalf("Response message: want %v, got %v", goAway, responder[0].message)
 	}
@@ -44,6 +47,7 @@ func TestRejectsUnknownUsersInBotChat(t *testing.T) {
 
 func TestSkipMessagesToBotWithoutText(t *testing.T) {
 	var responder testTextResponder
+
 	handleMessageToBot(
 		newResponseContextStub("Admin", ""),
 		&responder,
@@ -58,9 +62,14 @@ func TestSkipMessagesToBotWithoutText(t *testing.T) {
 
 func TestExecuteCommandInMessageToBot(t *testing.T) {
 	executeCommandCalled := false
-	var responder testTextResponder
 	responseContext := newResponseContextStub("Admin", "/start")
-	responseContext.Message.Entities = append(responseContext.Message.Entities, tgbotapi.MessageEntity{Offset: 0, Type: "bot_command"})
+	responseContext.Message.Entities = append(
+		responseContext.Message.Entities,
+		tgbotapi.MessageEntity{Offset: 0, Type: "bot_command"},
+	)
+
+	var responder testTextResponder
+
 	handleMessageToBot(
 		responseContext,
 		&responder,
@@ -76,9 +85,11 @@ func TestExecuteCommandInMessageToBot(t *testing.T) {
 }
 
 func TestBanChannelOfForwardedMessage(t *testing.T) {
-	var responder testTextResponder
 	responseContext := newResponseContextStub("Admin", "Crappy news!!!")
 	responseContext.Message.ForwardFromChat = &tgbotapi.Chat{ID: 666, Title: "Crappy channel"}
+
+	var responder testTextResponder
+
 	handleMessageToBot(
 		responseContext,
 		&responder,
@@ -91,9 +102,11 @@ func TestBanChannelOfForwardedMessage(t *testing.T) {
 	if !db.GetBannedChannelDB().IsBanned(666) {
 		t.Fatal("Channel was not banned")
 	}
+
 	if len(responder) != 1 {
 		t.Fatalf("Want 1 response, got %v", len(responder))
 	}
+
 	response := responder[0].message
 	if response != channelBanResponseText {
 		t.Fatalf("Want response %#v, got %#v", channelBanResponseText, response)
@@ -102,6 +115,7 @@ func TestBanChannelOfForwardedMessage(t *testing.T) {
 
 func TestSkipNonForwardedTextMessagesToBot(t *testing.T) {
 	var responder testTextResponder
+
 	handleMessageToBot(
 		newResponseContextStub("Admin", "text"),
 		&responder,
@@ -113,9 +127,12 @@ func TestSkipNonForwardedTextMessagesToBot(t *testing.T) {
 }
 
 func newResponseContextStub(senderUserName, text string) helpers.ResponseContext {
-	return helpers.ResponseContext{Message: &tgbotapi.Message{
-		From:    &tgbotapi.User{UserName: senderUserName},
-		Text:    text,
-		Caption: "",
-	}}
+	return helpers.ResponseContext{
+		Bot: nil,
+		Message: &tgbotapi.Message{
+			From:    &tgbotapi.User{UserName: senderUserName},
+			Text:    text,
+			Caption: "",
+		},
+	}
 }

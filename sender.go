@@ -25,11 +25,15 @@ func (r telegramTextResponder) RespondTextf(parseMode string, silent bool, forma
 	msg.ParseMode = parseMode
 	msg.DisableNotification = silent
 
-	var sentResponse tgbotapi.Message
-	var err error
+	var (
+		sentResponse tgbotapi.Message
+		err          error
+	)
+
 	if sentResponse, err = r.bot.Send(msg); err != nil {
 		log.Println(err.Error())
 		return nil
 	}
+
 	return &sentResponse
 }

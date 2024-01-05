@@ -6,26 +6,28 @@ import (
 	"strconv"
 )
 
-const superAdminChatIdFile = "superadmin-chat-id"
+const superAdminChatIDFile = "superadmin-chat-id"
 
-func SetSuperAdminChatId(chatId int64) {
-	if err := os.WriteFile(superAdminChatIdFile, []byte(strconv.FormatInt(chatId, 10)), 0644); err != nil {
+func SetSuperAdminChatID(chatID int64) {
+	if err := os.WriteFile(superAdminChatIDFile, []byte(strconv.FormatInt(chatID, 10)), 0600); err != nil {
 		log.Printf("Failed to save admin chat ID: %v\n", err)
 	}
 }
 
-const SuperAdminChatIdNotSet = -1
+const SuperAdminChatIDNotSet = -1
 
-func GetSuperAdminChatId() int64 {
-	idBytes, err := os.ReadFile(superAdminChatIdFile)
+func GetSuperAdminChatID() int64 {
+	idBytes, err := os.ReadFile(superAdminChatIDFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return SuperAdminChatIdNotSet
+			return SuperAdminChatIDNotSet
 		}
+
 		log.Printf("Failed to load admin chat ID: %v\n", err)
 	}
 
 	idString := string(idBytes)
+
 	id, err := strconv.ParseInt(idString, 10, 64)
 	if err != nil {
 		log.Printf("Failed to parse \"%s\" as int64\n", idString)

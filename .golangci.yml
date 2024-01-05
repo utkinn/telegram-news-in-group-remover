@@ -1,0 +1,109 @@
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - asasalint
+    - asciicheck
+    - bidichk
+    - decorder
+    - dogsled
+    - dupl
+    # - dupword
+    - durationcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - exhaustruct
+    - exportloopref
+    - funlen
+    - gocheckcompilerdirectives
+    # - gochecknoglobals
+    # - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - goerr113
+    - gofmt
+    - goimports
+    - gomnd
+    - goprintffuncname
+    - gosec
+    - grouper
+    - importas
+    - interfacebloat
+    - ireturn
+    - maintidx
+    - makezero
+    - misspell
+    - nakedret
+    - nestif
+    - nilerr
+    - nolintlint
+    - perfsprint
+    - prealloc
+    - predeclared
+    - reassign
+    - revive
+    - stylecheck
+    - testpackage
+    - unconvert
+    - unparam
+    - usestdlibvars
+    - varnamelen
+    - wastedassign
+    - whitespace
+    - wrapcheck
+    - wsl
+
+linters-settings:
+  exhaustruct:
+    exclude:
+      - github.com/go-telegram-bot-api/telegram-bot-api/v5.*
+      - github.com/utkinn/telegram-news-in-group-remover/db\.database
+
+  revive:
+    enable-all-rules: true
+    rules:
+      - name: blank-imports
+        disabled: true
+      - name: line-length-limit
+        severity: warning
+        arguments: [120]
+      - name: add-constant
+        disabled: true
+      - name: var-naming
+        arguments:
+          - ["ID", "DB"]
+          - []
+          - - upperCaseConst: true
+      - name: cognitive-complexity
+        disabled: true
+
+  gosec:
+    excludes:
+      - G404
+
+  gomnd:
+    ignored-files:
+      - .*_test.go
+    ignored-numbers:
+      - '0600'
+      - '2'
+
+  varnamelen:
+    ignore-decls:
+      - i int
+    ignore-names:
+      - to
+
+  ireturn:
+    allow:
+      - error
+      - generic

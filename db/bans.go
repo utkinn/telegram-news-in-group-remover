@@ -1,22 +1,22 @@
 package db
 
 type Channel struct {
-	Id    int64
+	ID    int64 `json:"Id"`
 	Title string
 }
 
 type BannedChannelDB struct{ database[Channel] }
 
-var bannedChannelsDb = BannedChannelDB{database[Channel]{
+var bannedChannelsDB = BannedChannelDB{database[Channel]{
 	filename: "banned-channels.json",
 }}
 
 func init() {
-	bannedChannelsDb.load()
+	bannedChannelsDB.load()
 }
 
 func GetBannedChannelDB() *BannedChannelDB {
-	return &bannedChannelsDb
+	return &bannedChannelsDB
 }
 
 func (db *BannedChannelDB) Get() []Channel {
@@ -24,28 +24,32 @@ func (db *BannedChannelDB) Get() []Channel {
 }
 
 func (db *BannedChannelDB) Ban(ch Channel) {
-	db.data = removeDuplicateChannelsById(append(db.data, ch))
+	db.data = removeDuplicateChannelsByID(append(db.data, ch))
 	db.write()
 }
 
-func removeDuplicateChannelsById(sliceList []Channel) []Channel {
+func removeDuplicateChannelsByID(sliceList []Channel) []Channel {
 	allKeys := make(map[int64]bool)
 	list := []Channel{}
+
 	for _, item := range sliceList {
-		if _, value := allKeys[item.Id]; !value {
-			allKeys[item.Id] = true
+		if _, value := allKeys[item.ID]; !value {
+			allKeys[item.ID] = true
+
 			list = append(list, item)
 		}
 	}
+
 	return list
 }
 
-func (db *BannedChannelDB) IsBanned(channelId int64) bool {
+func (db *BannedChannelDB) IsBanned(channelID int64) bool {
 	for _, ch := range db.data {
-		if ch.Id == channelId {
+		if ch.ID == channelID {
 			return true
 		}
 	}
+
 	return false
 }
 
