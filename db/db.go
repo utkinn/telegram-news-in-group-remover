@@ -35,13 +35,17 @@ func (db *database[T]) load() {
 // write dumps database.data to a JSON file in the current working directory.
 // The file name is specified by database.filename.
 func (db *database[T]) write() {
+	if db.filename == "" {
+		log.Panic("Database file name is not specified")
+	}
+
 	content, err := json.Marshal(db.data)
 	if err != nil {
 		log.Fatalf("Failed to marshal banned channels: %s", err.Error())
 	}
 
 	if err = os.WriteFile(db.filename, content, 0644); err != nil {
-		log.Fatalf("Failed to write %s: %s", db.filename, err.Error())
+		log.Panicf("Failed to write %s: %s", db.filename, err.Error())
 	}
 }
 

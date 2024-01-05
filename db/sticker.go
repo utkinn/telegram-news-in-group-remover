@@ -6,11 +6,25 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-type StickerDB struct{ database[string] }
+type random interface {
+	Intn(n int) int
+}
 
-var stickersDb = StickerDB{database[string]{
-	filename: "stickers.json",
-}}
+type realRandom struct{}
+
+func (realRandom) Intn(n int) int { return rand.Intn(n) }
+
+type StickerDB struct {
+	database[string]
+	random random
+}
+
+var stickersDb = StickerDB{
+	database[string]{
+		filename: "stickers.json",
+	},
+	realRandom{},
+}
 
 func init() {
 	stickersDb.load()
@@ -21,5 +35,5 @@ func GetStickerDB() *StickerDB {
 }
 
 func (db *StickerDB) GetRandomMockStickerFileId() tgbotapi.FileID {
-	return tgbotapi.FileID(stickersDb.data[rand.Intn(len(stickersDb.data))])
+	return tgbotapi.FileID(db.data[db.random.Intn(len(db.data))])
 }

@@ -3,6 +3,7 @@ package db
 import (
 	"os"
 	"path"
+	"strings"
 	"testing"
 )
 
@@ -41,6 +42,22 @@ func TestWrite(t *testing.T) {
 		testDB.data = []int{0, 1, 2}
 		testDB.write()
 	}, "[0,1,2]")
+}
+
+func TestWritePanicsOnUnspecifiedFilename(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected database.write() to panic")
+		}
+		if !strings.Contains(r.(string), "file name is not specified") {
+			t.Fatalf("Unexpected panic message: %v", r)
+		}
+	}()
+
+	testDB := database[int]{}
+	testDB.data = []int{0, 1, 2}
+	testDB.write()
 }
 
 func TestAdd(t *testing.T) {

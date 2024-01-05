@@ -22,7 +22,7 @@ var chillPng []byte
 
 func (m *muteFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
 	senderUserName := ctx.Message.From.UserName
-	muted, announced := db.GetMuteDB().IsUserMuted(senderUserName)
+	muted, announced := db.GetMuteDB().GetStatusForUser(senderUserName)
 	if muted && !announced {
 		muteAnnouncement := tgbotapi.NewPhoto(ctx.Message.Chat.ID, tgbotapi.FileBytes{Name: "chill.png", Bytes: chillPng})
 		muteAnnouncement.Caption = fmt.Sprintf("@%v, иди паспи, не скажу насколько", senderUserName)

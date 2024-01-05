@@ -1,7 +1,6 @@
 package db
 
 import (
-	"math/rand"
 	"time"
 )
 
@@ -11,9 +10,20 @@ type mute struct {
 	IsAnnounced    bool
 }
 
-type MuteDB struct{ database[mute] }
+type clock interface {
+	Now() time.Time
+}
 
-var muteDb = MuteDB{database[mute]{filename: "mute.json"}}
+type realClock struct{}
+
+func (realClock) Now() time.Time { return time.Now() }
+
+type MuteDB struct {
+	database[mute]
+	clock clock
+}
+
+var muteDb = MuteDB{database[mute]{filename: "mute.json"}, realClock{}}
 
 func init() {
 	muteDb.load()
@@ -23,11 +33,11 @@ func GetMuteDB() *MuteDB {
 	return &muteDb
 }
 
-func (db *MuteDB) MuteUser(userName string) {
+func (db *MuteDB) MuteUser(userName string, duration time.Duration) {
 	db.add(mute{
 		UserName: userName,
-		StartAt:  time.Now(),
-		EndAt:    time.Now().Add(randomMuteDuration()),
+		StartAt:  db.clock.Now(),
+		EndAt:    db.clock.Now().Add(duration),
 	})
 }
 
@@ -35,14 +45,18 @@ func (db *MuteDB) UnmuteUser(userName string) {
 	db.filterInPlace(func(item mute) bool { return item.UserName != userName })
 }
 
-func (db *MuteDB) IsUserMuted(userName string) (muted, announced bool) {
-	db.filterInPlace(func(item mute) bool { return !item.EndAt.Before(time.Now()) })
+func (db *MuteDB) GetStatusForUser(userName string) (muted, announced bool) {
+	db.cleanUpExpiredMutes()
 	for _, item := range db.data {
 		if item.UserName == userName {
 			return true, item.IsAnnounced
 		}
 	}
 	return false, false
+}
+
+func (db *MuteDB) cleanUpExpiredMutes() {
+	db.filterInPlace(func(item mute) bool { return !item.EndAt.Before(time.Now()) })
 }
 
 func (db *MuteDB) MarkMuteAnnounced(userName string) {
@@ -52,11 +66,4 @@ func (db *MuteDB) MarkMuteAnnounced(userName string) {
 		}
 	}
 	db.write()
-}
-
-const minMuteDuration = time.Minute * 10
-const maxMuteDuration = time.Minute * 60
-
-func randomMuteDuration() time.Duration {
-	return time.Duration(rand.Int63n(int64(maxMuteDuration) - int64(minMuteDuration) + int64(minMuteDuration)))
 }
