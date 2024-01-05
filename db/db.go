@@ -32,7 +32,8 @@ func (db *database[T]) load() {
 	}
 }
 
-// write dumps database.data to a JSON file in the current working directory. The file name is specified by database.filename.
+// write dumps database.data to a JSON file in the current working directory.
+// The file name is specified by database.filename.
 func (db *database[T]) write() {
 	content, err := json.Marshal(db.data)
 	if err != nil {

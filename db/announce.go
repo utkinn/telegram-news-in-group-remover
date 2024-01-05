@@ -1,15 +1,15 @@
 package db
 
-type announcementSubscription struct {
+type AnnouncementSubscription struct {
 	UserName string
 	ChatId   int64
 }
 
 type AnnouncementSubscriptionDB struct {
-	database[announcementSubscription]
+	database[AnnouncementSubscription]
 }
 
-var announcementsDb = AnnouncementSubscriptionDB{database[announcementSubscription]{filename: "announcement-subscriptions.json"}}
+var announcementsDb = AnnouncementSubscriptionDB{database[AnnouncementSubscription]{filename: "announcement-subscriptions.json"}}
 
 func init() {
 	announcementsDb.load()
@@ -28,12 +28,12 @@ func (db *AnnouncementSubscriptionDB) GetChatIdsOfSubscribedAdmins() []int64 {
 }
 
 func (db *AnnouncementSubscriptionDB) Subscribe(chatId int64, userName string) {
-	db.addNoDupe(announcementSubscription{
+	db.addNoDupe(AnnouncementSubscription{
 		UserName: userName,
 		ChatId:   chatId,
-	}, func(a, b announcementSubscription) bool { return a.ChatId == b.ChatId })
+	}, func(a, b AnnouncementSubscription) bool { return a.ChatId == b.ChatId })
 }
 
 func (db *AnnouncementSubscriptionDB) Unsubscribe(chatId int64) {
-	db.filterInPlace(func(ann announcementSubscription) bool { return ann.ChatId != chatId })
+	db.filterInPlace(func(ann AnnouncementSubscription) bool { return ann.ChatId != chatId })
 }

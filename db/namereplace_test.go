@@ -1,37 +1,29 @@
 package db
 
 import (
-	"os"
-	"path"
 	"testing"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func TestGetNameForUserWorksWithReplacement(t *testing.T) {
-	json := `
-	[
-		{
-			"Username": "Alex123",
-			"NameReplacement": "Funny guy"
+	db := NameReplacementDB{
+		database[nameReplacement]{
+			data: []nameReplacement{
+				{Username: "Alex123", NameReplacement: "Funny guy"},
+			},
 		},
-		{
-			"Username": "foobar",
-			"NameReplacement": "Another one"
-		}
-	]	
-	`
-	tempJsonFileName := path.Join(t.TempDir(), "name-replacements.json")
-	if err := os.WriteFile(tempJsonFileName, []byte(json), 0444); err != nil {
-		t.Fatalf("Failed to write to file: %v", err)
 	}
-	nameReplacementsDb.filename = tempJsonFileName
-	nameReplacementsDb.load()
 
-	user := tgbotapi.User{UserName: "Alex123", FirstName: "Alex"}
-	replaced := nameReplacementsDb.GetNameForUser(&user)
+	userWithReplacement := tgbotapi.User{UserName: "Alex123", FirstName: "Alex"}
+	name := db.GetNameForUser(&userWithReplacement)
+	if name != "Funny guy" {
+		t.Fatalf("Name replacement failed, got %v instead", name)
+	}
 
-	if replaced != "Funny guy" {
-		t.Fatalf("Name replacement failed, got %v instead", replaced)
+	userWithoutReplacement := tgbotapi.User{UserName: "foobar", FirstName: "John"}
+	name = db.GetNameForUser(&userWithoutReplacement)
+	if name != "John" {
+		t.Fatalf("Name replacement failed, got %v instead", name)
 	}
 }
