@@ -9,7 +9,7 @@ import (
 const superAdminChatIDFile = "superadmin-chat-id"
 
 func SetSuperAdminChatID(chatID int64) {
-	if err := os.WriteFile(superAdminChatIDFile, []byte(strconv.FormatInt(chatID, 10)), 0600); err != nil {
+	if err := os.WriteFile(superAdminChatIDFile, []byte(strconv.FormatInt(chatID, 10)), 0o600); err != nil {
 		log.Printf("Failed to save admin chat ID: %v\n", err)
 	}
 }

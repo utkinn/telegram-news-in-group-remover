@@ -30,7 +30,7 @@ linters:
     - gocyclo
     - godot
     - goerr113
-    - gofmt
+    - gofumpt
     - goimports
     - gomnd
     - goprintffuncname
@@ -92,7 +92,7 @@ linters-settings:
     ignored-files:
       - .*_test.go
     ignored-numbers:
-      - '0600'
+      - '0o600'
       - '2'
 
   gocognit:

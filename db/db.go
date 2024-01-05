@@ -22,8 +22,8 @@ func (db *database[T]) load() {
 	}
 
 	var err error
-	content, err := os.ReadFile(db.filename)
 
+	content, err := os.ReadFile(db.filename)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return
@@ -49,7 +49,7 @@ func (db *database[T]) write() {
 		panic(fmt.Sprintf("Failed to marshal data: %s", err.Error()))
 	}
 
-	if err = os.WriteFile(db.filename, content, 0600); err != nil {
+	if err = os.WriteFile(db.filename, content, 0o600); err != nil {
 		panic(fmt.Sprintf("Failed to write %s: %s", db.filename, err.Error()))
 	}
 }

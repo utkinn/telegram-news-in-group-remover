@@ -11,8 +11,10 @@ func aspectRatioSeemsLikeScreenshot(img image.Image) bool {
 	return float32(bounds.Dy())/float32(bounds.Dx()) > 2
 }
 
-const pixelColorMaxValue = 0xffff
-const whiteTolerance = 5.5
+const (
+	pixelColorMaxValue = 0xffff
+	whiteTolerance     = 5.5
+)
 
 func lotsOfWhitePixels(img image.Image) bool {
 	var maxValueOccurrences, otherOccurrences int

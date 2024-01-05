@@ -10,7 +10,7 @@ import (
 
 func TestLoad(t *testing.T) {
 	testDBFilePath := path.Join(t.TempDir(), "db.json")
-	if err := os.WriteFile(testDBFilePath, []byte("[0,1,2]"), 0600); err != nil {
+	if err := os.WriteFile(testDBFilePath, []byte("[0,1,2]"), 0o600); err != nil {
 		t.Fatalf("Failed to write to %v: %v", testDBFilePath, err)
 	}
 
@@ -50,7 +50,7 @@ func TestWarningOnUnnecessaryLoad(t *testing.T) {
 	testDBFilePath := path.Join(t.TempDir(), "db.json")
 	testDB := database[int]{filename: testDBFilePath, data: []int{0, 1, 2}}
 
-	if err := os.WriteFile(testDBFilePath, []byte("[0,1,2]"), 0600); err != nil {
+	if err := os.WriteFile(testDBFilePath, []byte("[0,1,2]"), 0o600); err != nil {
 		t.Fatalf("Failed to write to %v: %v", testDBFilePath, err)
 	}
 
@@ -74,7 +74,7 @@ func TestLoadPanicsOnReadFail(t *testing.T) {
 	}()
 
 	funkyPermissionsFilePath := path.Join(t.TempDir(), "funky-permissions.json")
-	if err := os.WriteFile(funkyPermissionsFilePath, []byte("[0,1,2]"), 0000); err != nil {
+	if err := os.WriteFile(funkyPermissionsFilePath, []byte("[0,1,2]"), 0o000); err != nil {
 		t.Fatalf("Failed to create funky-permissions.json: %v", err)
 	}
 
@@ -95,7 +95,7 @@ func TestLoadGarbage(t *testing.T) {
 	}()
 
 	testDBFilePath := path.Join(t.TempDir(), "db.json")
-	if err := os.WriteFile(testDBFilePath, []byte("garbage"), 0600); err != nil {
+	if err := os.WriteFile(testDBFilePath, []byte("garbage"), 0o600); err != nil {
 		t.Fatalf("Failed to write to %v: %v", testDBFilePath, err)
 	}
 
@@ -152,7 +152,7 @@ func TestWritePanic(t *testing.T) {
 		defer handlePanic()
 
 		unwritableFilePath := path.Join(t.TempDir(), "unwritable.json")
-		if err := os.WriteFile(unwritableFilePath, []byte("[0,1,2]"), 0000); err != nil {
+		if err := os.WriteFile(unwritableFilePath, []byte("[0,1,2]"), 0o000); err != nil {
 			t.Fatalf("Failed to create unwritable.json: %v", err)
 		}
 

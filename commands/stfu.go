@@ -30,8 +30,10 @@ func init() {
 	)
 }
 
-const minMuteDuration = time.Minute * 10
-const maxMuteDuration = time.Minute * 60
+const (
+	minMuteDuration = time.Minute * 10
+	maxMuteDuration = time.Minute * 60
+)
 
 func randomMuteDuration() time.Duration {
 	return time.Duration(rand.Int63n(int64(maxMuteDuration) - int64(minMuteDuration) + int64(minMuteDuration)))

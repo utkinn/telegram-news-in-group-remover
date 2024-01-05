@@ -21,5 +21,7 @@ func Get() []*tgbotapi.Message {
 	return result
 }
 
-var messageMemory [100]*tgbotapi.Message
-var ringBufferIndex int
+var (
+	messageMemory   [100]*tgbotapi.Message
+	ringBufferIndex int
+)
