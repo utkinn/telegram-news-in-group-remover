@@ -24,8 +24,8 @@ jobs:
     - name: Build
       run: go build -v .
 
-    - name: Run go vet
-      run: go vet -v ./...
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v3.7.0
 
     - name: Run go test
       run: go test -v ./...
