@@ -12,7 +12,7 @@ linters:
     - decorder
     - dogsled
     - dupl
-    # - dupword
+    - dupword
     - durationcheck
     - errchkjson
     - errname
@@ -83,8 +83,6 @@ linters-settings:
           - ["ID", "DB"]
           - []
           - - upperCaseConst: true
-      - name: cognitive-complexity
-        disabled: true
 
   gosec:
     excludes:
@@ -96,6 +94,9 @@ linters-settings:
     ignored-numbers:
       - '0600'
       - '2'
+
+  gocognit:
+    min-complexity: 10
 
   varnamelen:
     ignore-decls:

@@ -1,7 +1,6 @@
 package filters
 
 import (
-	"errors"
 	"log"
 
 	"github.com/dlclark/regexp2"
@@ -19,23 +18,21 @@ func (*regexFilter) IsMessageAllowed(ctx helpers.ResponseContext) bool {
 	regexes := db.GetBannedRegexDB().Get()
 
 	for _, regex := range regexes {
-		caseInsensitiveRegex, err := regexp2.Compile(regex, regexp2.IgnoreCase)
+		compiledRegex, err := regexp2.Compile(regex, regexp2.IgnoreCase)
 		if err != nil {
-			log.Printf("Failed to compile regex %s: %v", caseInsensitiveRegex, err)
+			log.Printf("Failed to compile regex %s: %v", compiledRegex, err)
 			return true
 		}
 
-		textMatch, textErr := caseInsensitiveRegex.MatchString(ctx.Message.Text)
-		captionMatch, captionErr := caseInsensitiveRegex.MatchString(ctx.Message.Caption)
-
-		if captionMatch || textMatch {
-			return false
-		}
-
-		if err := errors.Join(textErr, captionErr); err != nil {
+		match, err := compiledRegex.MatchString(ctx.Message.Text + ctx.Message.Caption)
+		if err != nil {
 			log.Printf("regexp %s MatchString failed: %v\nText to match against was: \"%s\"\n"+
 				"Caption to match against was: \"%s\"\n",
 				regex, err, ctx.Message.Text, ctx.Message.Caption)
+		}
+
+		if match {
+			return false
 		}
 	}
 

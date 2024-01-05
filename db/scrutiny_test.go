@@ -36,6 +36,7 @@ func TestScrutinyDBAdd(t *testing.T) {
 	}
 }
 
+//nolint:revive // cognitive-complexity
 func TestScrutinyDBRemove(t *testing.T) {
 	database := ScrutinyDB{
 		database[string]{

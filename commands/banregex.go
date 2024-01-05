@@ -33,7 +33,8 @@ var banRegexCommand = newCommand(
 
 		ctx.SendSilentMarkdownFmt("Сообщения от пользователей в списке _пристального присмотра_, " +
 			"совпадающие с этим регулярным выражением, будут удалены.")
-	})
+	},
+)
 
 func init() {
 	registerCommand(banRegexCommand)
@@ -58,13 +59,19 @@ func removeMatchingMessagesFromMsgmem(regex string, bot *tgbotapi.BotAPI) {
 		}
 
 		if match && db.GetScrutinyDB().IsUnderScrutiny(item.From.UserName) { // TODO: check using filter
-			msgremoval.Remove(bot, item)
-
-			if !userNamesMockedSoFar[item.From.UserName] {
-				msgremoval.MockUser(bot, item.Chat.ID, item.From)
-
-				userNamesMockedSoFar[item.From.UserName] = true
-			}
+			removeMessageAndMockSender(userNamesMockedSoFar, item, bot)
 		}
 	}
+}
+
+func removeMessageAndMockSender(userNamesMockedSoFar map[string]bool, item *tgbotapi.Message, bot *tgbotapi.BotAPI) {
+	msgremoval.Remove(bot, item)
+
+	if userNamesMockedSoFar[item.From.UserName] {
+		return
+	}
+
+	msgremoval.MockUser(bot, item.Chat.ID, item.From)
+
+	userNamesMockedSoFar[item.From.UserName] = true
 }
