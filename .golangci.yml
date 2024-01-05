@@ -107,3 +107,8 @@ linters-settings:
     allow:
       - error
       - generic
+
+  testpackage:
+    allow-packages:
+      - db
+      - main

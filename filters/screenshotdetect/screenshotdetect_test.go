@@ -1,10 +1,12 @@
-package filters
+package screenshotdetect_test
 
 import (
 	"fmt"
 	"image/jpeg"
 	"os"
 	"testing"
+
+	"github.com/utkinn/telegram-news-in-group-remover/filters/screenshotdetect"
 )
 
 func TestIsScreenshotWithScreenshotWithText(t *testing.T) {
@@ -32,7 +34,7 @@ func testScreenshotRecognition(t *testing.T, screenshotName string, expectedResu
 		t.Fatalf("Failed to decode screenshot jpeg: %v", err)
 	}
 
-	if isScreenshot(screenshot) != expectedResult {
-		t.Fatal("isScreenshot() returned wrong result")
+	if screenshotdetect.IsScreenshot(screenshot) != expectedResult {
+		t.Fatal("IsScreenshot() returned wrong result")
 	}
 }
